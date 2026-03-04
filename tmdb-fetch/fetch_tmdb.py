@@ -6,6 +6,7 @@ import time
 
 import pandas as pd
 import requests
+from dotenv import load_dotenv
 from tqdm import tqdm
 
 BASE_URL = "https://api.themoviedb.org"
@@ -13,9 +14,10 @@ RATE_LIMIT_DELAY = 1 / 25  # 25 requests per second
 
 
 def get_bearer_token() -> str:
+    load_dotenv()
     token = os.environ.get("TMDB_BEARER")
     if not token:
-        print("Error: TMDB_BEARER environment variable is not set.")
+        print("Error: TMDB_BEARER is not set. Add it to .env or export it.")
         sys.exit(1)
     return token
 
@@ -107,6 +109,8 @@ def fetch_movie_details(movie_ids: list[int], token: str) -> list[dict]:
             continue
         if not tagline and not overview:
             continue
+        if data.get("status") != "Released":
+            continue
 
         genres = data.get("genres", [])
         genre_ids = [g["id"] for g in genres]
@@ -123,6 +127,14 @@ def fetch_movie_details(movie_ids: list[int], token: str) -> list[dict]:
             "vote_average": data.get("vote_average", 0.0),
             "vote_count": data.get("vote_count", 0),
             "popularity": data.get("popularity", 0.0),
+            "poster_path": data.get("poster_path") or "",
+            "backdrop_path": data.get("backdrop_path") or "",
+            "runtime": data.get("runtime") or 0,
+            "original_language": data.get("original_language", ""),
+            "status": data.get("status", ""),
+            "revenue": data.get("revenue") or 0,
+            "budget": data.get("budget") or 0,
+            "belongs_to_collection": data.get("belongs_to_collection") is not None,
         })
         seen_ids.add(movie_id)
 
@@ -154,11 +166,15 @@ def save_output(movies: list[dict]):
 
     with_tagline = df["tagline"].astype(bool).sum()
     without_tagline = len(df) - with_tagline
+    with_revenue = (df["revenue"] > 0).sum()
+    in_collection = df["belongs_to_collection"].sum()
 
     print(f"\nSummary:")
     print(f"  Total movies saved: {len(df)}")
     print(f"  With tagline:       {with_tagline}")
     print(f"  Without tagline:    {without_tagline}")
+    print(f"  With revenue > 0:   {with_revenue}")
+    print(f"  In a collection:    {in_collection}")
     print(f"  Output files:       tmdb_movies.parquet, tmdb_movies.csv")
 
 

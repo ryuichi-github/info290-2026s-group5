@@ -40,9 +40,9 @@ htmlcov/
 .mypy_cache/
 
 # TMDB fetch output
-tmdb-fetch/tmdb_movies*.parquet
-tmdb-fetch/tmdb_movies*.csv
+# tmdb-fetch/tmdb_movies*.parquet
+# tmdb-fetch/tmdb_movies*.csv
 
 # Documents
-*.pdf
-*.docx
+# *.pdf
+# *.docx
