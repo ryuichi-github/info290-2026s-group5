@@ -39,3 +39,4 @@ Output: overview + tagline + poster_art_direction
 - **LLM**: Mistral-7B-Instruct-v0.2 (4-bit quantized via BitsAndBytes)
 - **Embedding**: sentence-transformers/all-MiniLM-L6-v2 (384-dim)
 - **Hardware**: Colab GPU (G4 recommended)
+
