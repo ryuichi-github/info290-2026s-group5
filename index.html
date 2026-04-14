@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Marketing Asset Evaluation — INFO 290 Group 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0a; --surface:#141414; --surface2:#1c1c1c; --border:#262626;
+  --accent:#e8c97e; --accent2:#7ecfe8; --accent3:#a8e8a0;
+  --text:#f0ede8; --muted:#777; --dim:#444;
+  --s5:#4ade80; --s4:#a3e635; --s3:#facc15; --s2:#fb923c; --s1:#f87171;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5}
+
+/* header */
+header{border-bottom:1px solid var(--border);padding:1.8rem 3rem;display:flex;align-items:baseline;gap:1.5rem;flex-wrap:wrap}
+header h1{font-family:'DM Serif Display',serif;font-size:1.4rem;font-weight:400;color:var(--accent)}
+header p{font-size:.72rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+
+/* nav tabs */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 3rem;background:var(--surface)}
+.tab-btn{padding:.7rem 1.4rem;font-size:.72rem;font-family:'DM Sans',sans-serif;font-weight:400;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+/* main */
+main{max-width:1380px;margin:0 auto;padding:2.5rem 3rem}
+
+/* premise card */
+.premise{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.5rem;margin-bottom:1.8rem}
+.genre-pill{display:inline-block;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);border:1px solid var(--accent2);padding:.2rem .7rem;border-radius:100px;margin-bottom:.6rem}
+.premise p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.premise strong{color:var(--text);font-weight:400}
+
+/* controls */
+.controls{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.8rem;flex-wrap:wrap}
+.ctrl-label{font-size:.72rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.toggle{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.t-track{position:absolute;inset:0;background:var(--border);border-radius:10px;transition:background .2s}
+.toggle input:checked+.t-track{background:var(--accent)}
+.t-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none}
+.toggle input:checked~.t-thumb{transform:translateX(16px)}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-bottom:2rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;position:relative;transition:border-color .15s,transform .15s}
+.card:hover{border-color:#383838;transform:translateY(-2px)}
+.card.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.blind-badge{position:absolute;top:.75rem;left:.75rem;font-size:.62rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;background:rgba(10,10,10,.88);padding:.25rem .65rem;border-radius:100px;border:1px solid var(--border);color:var(--muted);z-index:2;transition:background .15s,color .15s,border-color .15s}
+.card.selected .blind-badge{background:var(--accent);color:#000;border-color:var(--accent)}
+
+/* poster */
+.poster{width:100%;aspect-ratio:2/3;background:var(--surface2);overflow:hidden;position:relative}
+.poster img{width:100%;height:100%;object-fit:cover;display:block}
+.poster-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;color:var(--dim)}
+.poster-ph svg{width:28px;height:28px;opacity:.3}
+.poster-ph span{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;opacity:.35}
+
+/* card body */
+.card-body{padding:1.1rem}
+.tagline{font-family:'DM Serif Display',serif;font-size:1rem;line-height:1.35;margin-bottom:.6rem;color:var(--text)}
+.overview{font-size:.76rem;line-height:1.65;color:var(--muted);margin-bottom:.9rem}
+.poster-art-toggle{font-size:.65rem;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:none;background:none;padding:0;margin-bottom:.9rem;text-decoration:underline}
+.poster-art{font-size:.72rem;line-height:1.6;color:var(--dim);border-left:2px solid var(--border);padding-left:.8rem;margin-bottom:.9rem;display:none}
+.poster-art.open{display:block}
+
+/* scores */
+.scores{display:none;flex-direction:column;gap:.35rem;padding-top:.9rem;border-top:1px solid var(--border)}
+.scores.on{display:flex}
+.sr{display:flex;align-items:center;gap:.5rem}
+.sl{font-size:.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;width:88px;flex-shrink:0}
+.sb-wrap{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.sb{height:100%;border-radius:2px;transition:width .5s ease}
+.sv{font-size:.62rem;color:var(--muted);width:16px;text-align:right;flex-shrink:0}
+.avg-line{font-size:.68rem;color:var(--muted);text-align:right;padding-top:.35rem}
+.avg-line strong{color:var(--accent);font-weight:500;font-size:.82rem}
+
+/* reveal */
+.reveal{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.3rem 1.5rem;margin-bottom:2rem;display:none}
+.reveal.on{display:block}
+.reveal h3{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--accent);margin-bottom:.9rem}
+.reveal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem}
+.ri{padding:.9rem 1rem;background:var(--surface2);border-radius:8px;border:1px solid var(--border)}
+.ri .blind{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:.2rem}
+.ri .true{font-size:.82rem;color:var(--text);margin-bottom:.15rem}
+.ri .desc{font-size:.7rem;color:var(--muted)}
+
+/* summary table */
+.summary-section{margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border)}
+.summary-section h2{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--text);margin-bottom:.4rem}
+.summary-sub{font-size:.76rem;color:var(--muted);margin-bottom:1.4rem}
+.summary-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.summary-table th{text-align:left;padding:.5rem .8rem;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);font-weight:400}
+.summary-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--muted)}
+.summary-table td:first-child{color:var(--text)}
+.trend-up{color:var(--accent3);font-weight:500}
+.trend-mid{color:var(--accent)}
+.trend-down{color:var(--s2)}
+
+/* test results placeholder */
+.pending-box{background:var(--surface);border:1px dashed var(--border);border-radius:10px;padding:2rem;text-align:center;color:var(--dim);font-size:.76rem;letter-spacing:.05em;margin-top:1.2rem}
+
+/* form */
+.form-section{margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border)}
+.form-section h2{font-family:'DM Serif Display',serif;font-size:1.2rem;margin-bottom:.4rem}
+.form-sub{font-size:.76rem;color:var(--muted);margin-bottom:1.2rem}
+.form-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.form-wrap iframe{width:100%;height:640px;border:none;background:var(--surface)}
+
+/* footer */
+footer{border-top:1px solid var(--border);padding:1.2rem 3rem;display:flex;justify-content:space-between;align-items:center;margin-top:4rem;flex-wrap:wrap;gap:.5rem}
+footer p{font-size:.68rem;color:var(--dim);letter-spacing:.04em}
+
+@media(max-width:860px){
+  .cards{grid-template-columns:1fr}
+  .reveal-grid{grid-template-columns:1fr}
+  main{padding:1.5rem}
+  header,footer,.tabs{padding-left:1.5rem;padding-right:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Marketing Asset Evaluation</h1>
+  <p>INFO 290 · Group 5 · UC Berkeley MIMS</p>
+</header>
+
+<div class="tabs" id="tabs"></div>
+
+<main>
+  <div id="premise-area"></div>
+  <div class="controls">
+    <span class="ctrl-label">Show LLM-as-Judge scores</span>
+    <label class="toggle">
+      <input type="checkbox" id="score-toggle" onchange="toggleScores(this.checked)">
+      <span class="t-track"></span><span class="t-thumb"></span>
+    </label>
+  </div>
+  <div class="cards" id="cards-area"></div>
+  <div class="reveal" id="reveal"></div>
+
+  <!-- Cross-idea summary -->
+  <div class="summary-section">
+    <h2>Cross-idea summary</h2>
+    <p class="summary-sub">Average LLM-as-Judge scores across all three ideas (1 run each, n=1).</p>
+    <table class="summary-table" id="summary-table">
+      <thead><tr><th>Idea</th><th>V1 avg</th><th>V2 avg</th><th>V3 avg</th><th>Trend</th></tr></thead>
+      <tbody id="summary-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Test set results (populated after Cell 9-E) -->
+  <div class="summary-section">
+    <h2>Test set results <span style="font-size:.7rem;color:var(--muted);font-family:'DM Sans',sans-serif">(200 QA pairs · 36 test records)</span></h2>
+    <p class="summary-sub">Statistical comparison across 36 unseen test records using best hyperparameter config from val set tuning.</p>
+    <div id="test-results-area"></div>
+  </div>
+
+  <!-- Human evaluation form -->
+  <div class="form-section">
+    <h2>Submit your evaluation</h2>
+    <p class="form-sub">Review the three options above and tell us which you prefer. Responses are anonymous and used solely for academic research.</p>
+    <div class="form-wrap">
+      <iframe src="GOOGLE_FORM_EMBED_URL_HERE" allowfullscreen>Loading form...</iframe>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p>INFO 290 · Group 5 · Ryuichi Ikeda, Priya Charagondla, Shivani Parikh, Nseke Ngilbus</p>
+  <p>For academic research purposes only.</p>
+</footer>
+
+<script>
+const SCORE_LABELS = {
+  narrative_fidelity:'Narrative',genre_alignment:'Genre',
+  visual_specificity:'Visual',creative_specificity:'Creative',output_format_validity:'Format'
+};
+const SCORE_COLORS = {5:'#4ade80',4:'#a3e635',3:'#facc15',2:'#fb923c',1:'#f87171'};
+
+let DATA = null;
+let currentIdea = 0;
+let showScores = false;
+let selected = {};
+let artOpen = {};
+
+async function init() {
+  const res = await fetch('data/results.json');
+  DATA = await res.json();
+  buildTabs();
+  buildSummary();
+  buildTestResults();
+  renderIdea(0);
+}
+
+function buildTabs() {
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = DATA.ideas.map((idea, i) => `
+    <button class="tab-btn ${i===0?'active':''}" onclick="selectIdea(${i})">
+      Idea ${idea.id} — ${idea.genre}
+    </button>
+  `).join('');
+}
+
+function buildSummary() {
+  const tbody = document.getElementById('summary-body');
+  tbody.innerHTML = DATA.cross_idea_summary.map(row => {
+    const best = Math.max(row.V1_avg, row.V2_avg, row.V3_avg);
+    const fmt = (v) => v === best
+      ? `<td><strong style="color:var(--accent)">${v.toFixed(2)}</strong></td>`
+      : `<td>${v.toFixed(2)}</td>`;
+    const trendClass = row.trend === 'V1<V2<V3' ? 'trend-up' : (row.trend.includes('V1') && row.trend.endsWith('V1') ? 'trend-down' : 'trend-mid');
+    return `<tr><td>${row.idea}</td>${fmt(row.V1_avg)}${fmt(row.V2_avg)}${fmt(row.V3_avg)}<td class="${trendClass}">${row.trend}</td></tr>`;
+  }).join('');
+}
+
+function buildTestResults() {
+  const area = document.getElementById('test-results-area');
+  if (!DATA.test_set_summary) {
+    area.innerHTML = `<div class="pending-box">Cell 9-E results pending — will be populated after full evaluation run (~1.5 hours)</div>`;
+    return;
+  }
+  const s = DATA.test_set_summary;
+  const dims = ['narrative_fidelity','genre_alignment','visual_specificity','creative_specificity','output_format_validity'];
+  area.innerHTML = `
+    <table class="summary-table">
+      <thead><tr><th>Dimension</th><th>V1 mean</th><th>V2 mean</th><th>V3 mean</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Overall</strong></td>
+          <td>${s.v1.overall_mean.toFixed(2)}</td>
+          <td>${s.v2.overall_mean.toFixed(2)}</td>
+          <td>${s.v3.overall_mean.toFixed(2)}</td>
+        </tr>
+        ${dims.map(d => `<tr>
+          <td>${SCORE_LABELS[d]}</td>
+          <td>${s.v1.per_dimension[d]?.mean.toFixed(2) ?? '—'}</td>
+          <td>${s.v2.per_dimension[d]?.mean.toFixed(2) ?? '—'}</td>
+          <td>${s.v3.per_dimension[d]?.mean.toFixed(2) ?? '—'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function selectIdea(idx) {
+  currentIdea = idx;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  renderIdea(idx);
+}
+
+function renderIdea(idx) {
+  const idea = DATA.ideas[idx];
+
+  // premise
+  document.getElementById('premise-area').innerHTML = `
+    <div class="premise">
+      <span class="genre-pill">${idea.genre}</span>
+      <p><strong>Premise:</strong> ${idea.premise}</p>
+      <p style="margin-top:.4rem"><strong>Theme:</strong> ${idea.thematic_core}</p>
+    </div>`;
+
+  // cards
+  document.getElementById('cards-area').innerHTML = idea.variants.map((v, vi) => `
+    <div class="card ${selected[idx]===v.blind?'selected':''}" id="card-${idx}-${vi}" onclick="selectCard(${idx},'${v.blind}')">
+      <span class="blind-badge">${v.blind}</span>
+      <div class="poster">
+        <img src="${v.image}" alt="${v.blind} poster"
+             onerror="this.parentNode.innerHTML='<div class=\\'poster-ph\\'><svg viewBox=\\'0 0 24 24\\'fill=\\'none\\'stroke=\\'currentColor\\'stroke-width=\\'1\\'><rect x=\\'3\\'y=\\'3\\'width=\\'18\\'height=\\'18\\'rx=\\'2\\'/><circle cx=\\'8.5\\'cy=\\'8.5\\'r=\\'1.5\\'/><polyline points=\\'21 15 16 10 5 21\\'/></svg><span>Image pending</span></div>'">
+      </div>
+      <div class="card-body">
+        <p class="tagline">${v.tagline}</p>
+        <p class="overview">${v.overview}</p>
+        <button class="poster-art-toggle" onclick="event.stopPropagation();toggleArt(${idx},${vi})">
+          ${artOpen[`${idx}-${vi}`] ? 'Hide' : 'Show'} poster direction
+        </button>
+        <p class="poster-art ${artOpen[`${idx}-${vi}`]?'open':''}" id="pa-${idx}-${vi}">${v.poster_art}</p>
+        <div class="scores ${showScores?'on':''}" id="sc-${idx}-${vi}">
+          ${Object.entries(v.scores).filter(([k])=>k!=='average').map(([k,val])=>`
+            <div class="sr">
+              <span class="sl">${SCORE_LABELS[k]}</span>
+              <div class="sb-wrap"><div class="sb" style="width:${val*20}%;background:${SCORE_COLORS[val]}"></div></div>
+              <span class="sv">${val}</span>
+            </div>`).join('')}
+          <p class="avg-line">avg <strong>${v.scores.average.toFixed(2)}</strong> / 5.00</p>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // reveal
+  const reveal = document.getElementById('reveal');
+  reveal.classList.add('on');
+  document.getElementById('reveal').innerHTML = `
+    <h3>Label reveal</h3>
+    <div class="reveal-grid">
+      ${idea.variants.map(v=>`
+        <div class="ri">
+          <p class="blind">${v.blind}</p>
+          <p class="true">${v.label} — ${v.label==='V1'?'Zero-Shot Baseline':v.label==='V2'?'RAG + Visual Grounding':'Agentic Loop'}</p>
+          <p class="desc">${v.desc}</p>
+        </div>`).join('')}
+    </div>`;
+}
+
+function selectCard(ideaIdx, blind) {
+  selected[ideaIdx] = blind;
+  renderIdea(ideaIdx);
+}
+
+function toggleScores(val) {
+  showScores = val;
+  document.querySelectorAll('.scores').forEach(el => el.classList.toggle('on', val));
+}
+
+function toggleArt(ideaIdx, varIdx) {
+  const key = `${ideaIdx}-${varIdx}`;
+  artOpen[key] = !artOpen[key];
+  const el = document.getElementById(`pa-${ideaIdx}-${varIdx}`);
+  el.classList.toggle('open', artOpen[key]);
+  el.previousElementSibling.textContent = (artOpen[key]?'Hide':'Show') + ' poster direction';
+}
+
+init();
+</script>
+</body>
+</html>
