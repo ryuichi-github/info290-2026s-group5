@@ -3,17 +3,34 @@
     {
       "id": 1,
       "genre": "Psychological Thriller",
-      "premise": "A retired bomb disposal expert is pulled back into service when an anonymous threat targets the city's water supply during a major public event.",
-      "thematic_core": "The cost of expertise — being the only person who can stop it means being the only person who must.",
+      "premise": "In Venice, retired detective Hercule Poirot attends a Halloween séance at a haunted palazzo, where a murder draws him back into investigation.",
+      "thematic_core": "The exploration of hidden truths and confronting the supernatural.",
       "variants": [
         {
           "label": "V1",
           "blind": "Option A",
           "desc": "Baseline: no retrieval, no visual grounding",
-          "tagline": "Rain traps secrets.",
-          "overview": "In the desolate heart of a rain-soaked village, the last clinic stands alone, its walls battered by the relentless floodwaters. As doctors and patients huddle inside, they find themselves cut off from the outside world. But as days turn into weeks, the tension between them threatens to boil over. Secrets buried deep begin to surface, and paranoia takes hold. Will the fragile bonds of humanity endure, or will the darkness within consume them all?",
-          "poster_art": "A haunting image of a deserted village submerged under torrential rains. In the foreground, a lone figure peeks through a window, her eyes wide with fear and uncertainty. Behind her, the dark waters rise, threatening to swallow the last vestiges of civilization.",
+          "tagline": "Rain keeps them out. Fear keeps them in.",
+          "overview": "In a remote, rain-soaked village, a community gathers at the lone clinic, their lives intertwined by necessity and circumstance. As the floodwaters rise, tensions simmer beneath the surface, threatening to boil over in unexpected ways.",
+          "poster_art": "A hauntingly beautiful image of the village shrouded in rain, the clinic standing defiantly amidst the chaos, the faces of the villagers peering through windows reflecting both fear and determination.",
           "image": "poster_images/idea1_v1.png",
+          "scores": {
+            "narrative_fidelity": 5,
+            "genre_alignment": 5,
+            "visual_specificity": 3,
+            "creative_specificity": 3,
+            "output_format_validity": 5,
+            "average": 4.2
+          }
+        },
+        {
+          "label": "V2",
+          "blind": "Option B",
+          "desc": "RAG retrieval + poster caption context",
+          "tagline": "Trapped in the grip of nature's secrets",
+          "overview": "In the heart of a rural village, where the only clinic is cut off by relentless rains, tenuous bonds between neighbors are tested. As paranoia seeps through the community, whispers of deceit and betrayal escalate, leaving the inhabitants questioning their own sanity.",
+          "poster_art": "The movie poster captures the haunting essence of isolation and mistrust, as a small rural village is swallowed by the encroaching floodwaters. A lone figure, framed against the backdrop of the tempest, gazes intently at the viewer, embodying the struggle to maintain order amidst the chaos that threatens to consume them all.",
+          "image": "poster_images/idea1_v2.png",
           "scores": {
             "narrative_fidelity": 5,
             "genre_alignment": 5,
@@ -24,37 +41,20 @@
           }
         },
         {
-          "label": "V2",
-          "blind": "Option B",
-          "desc": "RAG retrieval + poster caption context",
-          "tagline": "Trapped by nature's wrath, secrets rise.",
-          "overview": "In a remote, rain-soaked village, the sole medical clinic is isolated by devastating floodwaters. As strangers seeking refuge huddle together, whispers of paranoia begin to fester, forcing the villagers to confront their deepest fears.",
-          "poster_art": "The movie poster showcases a chilling image of a deserted village shrouded in rain, with a solitary figure standing on a makeshift bridge. The background radiates an eerie, otherworldly glow, hinting at the mounting tension and hidden truths within the community.",
-          "image": "poster_images/idea1_v2.png",
-          "scores": {
-            "narrative_fidelity": 5,
-            "genre_alignment": 5,
-            "visual_specificity": 5,
-            "creative_specificity": 4,
-            "output_format_validity": 5,
-            "average": 4.8
-          }
-        },
-        {
           "label": "V3",
           "blind": "Option C",
           "desc": "V2 + iterative LLM-as-Judge refinement",
-          "tagline": "Trapped by nature's wrath, a deadly secret unfolds.",
-          "overview": "In the heart of a desolate rural village, a doctor tends to the sick amidst relentless flooding. As the waters rise, the isolated clinic becomes a crucible for paranoia and mistrust among its patients.",
-          "poster_art": "A hauntingly beautiful image captures the essence of the village clinic, surrounded by ominous floodwaters. At the foreground, a doctor, bathed in the soft glow of a lantern, gazes intently at a patient, both their faces partially obscured by the condensation on the glass. Their expressions hint at a growing sense of unease and disquiet.",
+          "tagline": "Raindrops mask hidden truths",
+          "overview": "In the midst of relentless rains, a small clinic on the edge of a rural village struggles to survive, isolating its patients and staff. As tensions rise and paranoia sets in, the true nature of their predicament becomes increasingly unclear.",
+          "poster_art": "The movie poster features a hauntingly serene image of a rural village shrouded in heavy rain. At the heart of the scene lies a solitary, eerily quiet clinic, surrounded by a sea of muddy waters. The atmosphere is tense and foreboding, with a hint of mystery lurking beneath the surface.",
           "image": "poster_images/idea1_v3.png",
           "scores": {
             "narrative_fidelity": 5,
-            "genre_alignment": 3,
+            "genre_alignment": 4,
             "visual_specificity": 4,
             "creative_specificity": 3,
             "output_format_validity": 5,
-            "average": 4.0
+            "average": 4.2
           }
         }
       ]
@@ -69,27 +69,44 @@
           "label": "V1",
           "blind": "Option A",
           "desc": "Baseline: no retrieval, no visual grounding",
-          "tagline": "Two sisters. One house. A lifetime of secrets.",
-          "overview": "In the tranquil countryside of rural Japan, an estranged sibling rivalry unfolds as a middle-aged woman, haunted by unresolved grief, faces the painful past with her younger sister. Together, they navigate a house filled with memories and secrets, unearthing buried emotions.",
-          "poster_art": "A serene Japanese landscape, dotted with cherry blossom trees, sets the stage for a poignant tale of sibling tension. Two women, dressed in traditional garb, stand side by side in front of their late mother's house – one with a determined expression, the other with a pensive gaze. Their eyes meet, reflecting the depth of their shared pain.",
+          "tagline": "Two Weeks. Two Sisters. One Legacy.",
+          "overview": "In the tranquil countryside of rural Japan, an estranged pair of sisters confront unspoken grief and simmering resentment when they're forced to live under one roof for two weeks, settling their late mother's affairs.",
+          "poster_art": "A serene landscape image of a Japanese garden, where two sisters stand back-to-back, gazing at an empty house in the distance. Their silhouettes cast long shadows on the ground, symbolizing the deep divide between them.",
           "image": "poster_images/idea2_v1.png",
           "scores": {
             "narrative_fidelity": 5,
             "genre_alignment": 5,
-            "visual_specificity": 3,
+            "visual_specificity": 5,
             "creative_specificity": 3,
             "output_format_validity": 5,
-            "average": 4.2
+            "average": 4.6
           }
         },
         {
           "label": "V2",
           "blind": "Option B",
           "desc": "RAG retrieval + poster caption context",
-          "tagline": "Unresolved grief. Silent retribution.",
-          "overview": "In the serene tranquility of rural Japan, a woman grapples with her past as she settles her late mother's affairs. Haunted by unspoken sibling resentments, she must endure a fortnight with her estranged younger sister.",
-          "poster_art": "The poster art direction focuses on two sisters standing side by side against a backdrop of cherry blossoms, their gazes fixed upon each other, evoking a sense of tension and longing.",
+          "tagline": "Uncovering the past, one artifact at a time.",
+          "overview": "In the tranquil countryside of rural Japan, a mourning sister and estranged sibling convene at their late mother's vacated home. As they sift through remnants of a shared past, long-buried emotions resurface, threatening to fracture the delicate bond between them.",
+          "poster_art": "The poster art direction captures the sisters standing side-by-side in the dimly lit room, surrounded by a collage of their mother's keepsakes and personal effects. Their faces are etched with a mixture of sadness, resignation, and defiance as they grapple with their unresolved feelings towards each other and their deceased mother.",
           "image": "poster_images/idea2_v2.png",
+          "scores": {
+            "narrative_fidelity": 5,
+            "genre_alignment": 5,
+            "visual_specificity": 5,
+            "creative_specificity": 3,
+            "output_format_validity": 5,
+            "average": 4.6
+          }
+        },
+        {
+          "label": "V3",
+          "blind": "Option C",
+          "desc": "V2 + iterative LLM-as-Judge refinement",
+          "tagline": "Two sisters, one home, unspoken truths",
+          "overview": "In the tranquil Japanese countryside, a grieving sister is compelled to return to her ancestral home to tend to her late mother's affairs. Haunted by the past, she finds herself locked in a bitter struggle for closure with her long-estranged sibling.",
+          "poster_art": "A hauntingly beautiful and evocative scene unfolds, featuring two sisters standing in contrasting poses within the ancestral home. The elder, dressed in mourning attire, gazes intently outward, while the younger, dressed in modern clothing, turns her back, her expression hidden. Both sisters stand framed by the large, ornate doors leading to their shared but divided past.",
+          "image": "poster_images/idea2_v3.png",
           "scores": {
             "narrative_fidelity": 5,
             "genre_alignment": 5,
@@ -97,23 +114,6 @@
             "creative_specificity": 4,
             "output_format_validity": 5,
             "average": 4.4
-          }
-        },
-        {
-          "label": "V3",
-          "blind": "Option C",
-          "desc": "V2 + iterative LLM-as-Judge refinement",
-          "tagline": "Unresolved Grief. Silent Sisterhood.",
-          "overview": "Returning to her childhood home to settle her late mother's affairs, a woman must navigate the quiet, unspoken resentments between herself and her estranged younger sister. Amidst the tranquil yet tense surroundings, they confront the weight of their shared past.",
-          "poster_art": "The poster art features an evocative image of two sisters, standing side by side under the cover of an ancient Japanese cherry tree, with the sun setting in the background. Their faces are turned towards each other, reflecting a mixture of sadness, defiance, and longing.",
-          "image": "poster_images/idea2_v3.png",
-          "scores": {
-            "narrative_fidelity": 5,
-            "genre_alignment": 5,
-            "visual_specificity": 4,
-            "creative_specificity": 4,
-            "output_format_validity": 5,
-            "average": 4.6
           }
         }
       ]
@@ -129,9 +129,26 @@
           "blind": "Option A",
           "desc": "Baseline: no retrieval, no visual grounding",
           "tagline": "Expertise has its price.",
-          "overview": "When the city's lifeblood is under siege, a seasoned pro is reluctantly coaxed out of retirement. His unique skills are the only defense against an elusive adversary threatening to disrupt the public spectacle. In this high-stakes dance of cat and mouse, every second counts.",
-          "poster_art": "An ominous shadow looms over a bustling cityscape, as a lone figure stands at its edge, silhouetted against the setting sun. The sense of impending danger heightens as water droplets ripple across the image, reflecting the tension between the hero and the unseen enemy.",
+          "overview": "When the city's lifeblood is targeted by an enigmatic foe, a seasoned bomb disposal expert must once more don his suit and save the day – but at what cost?",
+          "poster_art": "A tense, nighttime scene depicts our hero poised against a ticking time bomb, the city skyline ominously reflected in still waters behind him.",
           "image": "poster_images/idea3_v1.png",
+          "scores": {
+            "narrative_fidelity": 5,
+            "genre_alignment": 5,
+            "visual_specificity": 3,
+            "creative_specificity": 3,
+            "output_format_validity": 5,
+            "average": 4.2
+          }
+        },
+        {
+          "label": "V2",
+          "blind": "Option B",
+          "desc": "RAG retrieval + poster caption context",
+          "tagline": "Expertise comes with a price.",
+          "overview": "In a race against time, a retired bomb disposal expert is thrust back into the dangerous world he thought he had left behind when a nefarious threat targets the city's water supply during a major public event. With no one else able to handle the situation, he must use every ounce of his expertise to prevent catastrophe.",
+          "poster_art": "This movie poster features a lone figure, the protagonist, silhouetted against a dramatic, stormy night sky. He is shown in profile, wearing a protective helmet and holding a bomb disposal suitcase. The city skyline looms ominously behind him, emphasizing the weight of responsibility on his shoulders. The tagline, 'Expertise comes with a price,' is displayed prominently beneath the image, adding intrigue and tension to the overall design.",
+          "image": "poster_images/idea3_v2.png",
           "scores": {
             "narrative_fidelity": 5,
             "genre_alignment": 5,
@@ -142,37 +159,20 @@
           }
         },
         {
-          "label": "V2",
-          "blind": "Option B",
-          "desc": "RAG retrieval + poster caption context",
-          "tagline": "Anonymity hides danger. Expertise unveils protection.",
-          "overview": "When an unseen enemy threatens the city's water supply during a grand public spectacle, a seasoned bomb disposal expert reluctantly returns to duty, bearing the weight of saving countless lives alone.",
-          "poster_art": "Our poster showcases a grizzled yet determined hero, standing tall against the ominous backdrop of a looming cityscape. Bathed in shadows, he holds aloft a glowing, blue detonator, symbolizing both his past expertise and the present threat he faces. A subtle hint of smoke trails through the air, representing the imminent danger lurking in the darkness.",
-          "image": "poster_images/idea3_v2.png",
-          "scores": {
-            "narrative_fidelity": 5,
-            "genre_alignment": 5,
-            "visual_specificity": 5,
-            "creative_specificity": 4,
-            "output_format_validity": 5,
-            "average": 4.8
-          }
-        },
-        {
           "label": "V3",
           "blind": "Option C",
           "desc": "V2 + iterative LLM-as-Judge refinement",
-          "tagline": "Expertise has its price.",
-          "overview": "Retired bomb disposal expert, haunted by past tragedies, is thrust back into the dangerous game of saving lives when an anonymous threat targets the city's water supply during a major public event.",
-          "poster_art": "A hauntingly beautiful image of a lone figure, backlit against the city skyline, silhouetted against the setting sun. The man, our hero, holds a lit fuse in one hand and a detonator in the other, poised between defusing the bomb and saving the day.",
+          "tagline": "An unseen enemy, a city on edge.",
+          "overview": "In a race against time, a retired bomb disposal expert, haunted by the past, is thrust back into action when an unknown enemy threatens the city's water supply during a major public event.",
+          "poster_art": "The movie poster showcases a tense, gritty urban landscape at dusk, with a lone figure silhouetted against the setting sun. This figure, our hero, stands determinedly near a body of water, his eyes scanning the horizon, ready to protect the city from imminent danger.",
           "image": "poster_images/idea3_v3.png",
           "scores": {
             "narrative_fidelity": 5,
-            "genre_alignment": 3,
+            "genre_alignment": 4,
             "visual_specificity": 4,
             "creative_specificity": 3,
             "output_format_validity": 5,
-            "average": 4.0
+            "average": 4.2
           }
         }
       ]
@@ -181,31 +181,31 @@
   "cross_idea_summary": [
     {
       "idea": "Idea 1",
-      "V1_avg": 4.6,
-      "V2_avg": 4.8,
-      "V3_avg": 4.0,
-      "trend": "V3<V1<V2"
+      "V1_avg": 4.2,
+      "V2_avg": 4.6,
+      "V3_avg": 4.2,
+      "trend": "V1=V3<V2"
     },
     {
       "idea": "Idea 2",
-      "V1_avg": 4.2,
-      "V2_avg": 4.4,
-      "V3_avg": 4.6,
-      "trend": "V1<V2<V3"
+      "V1_avg": 4.6,
+      "V2_avg": 4.6,
+      "V3_avg": 4.4,
+      "trend": "V3<V1=V2"
     },
     {
       "idea": "Idea 3",
-      "V1_avg": 4.6,
-      "V2_avg": 4.8,
-      "V3_avg": 4.0,
-      "trend": "V3<V1<V2"
+      "V1_avg": 4.2,
+      "V2_avg": 4.6,
+      "V3_avg": 4.2,
+      "trend": "V1=V3<V2"
     }
   ],
   "test_set_summary": {
-    "smoke_test": true,
-    "n_evaluated": 3,
+    "smoke_test": false,
+    "n_evaluated": 36,
     "v1": {
-      "overall_mean": 4.33,
+      "overall_mean": 4.42,
       "per_dimension": {
         "narrative_fidelity": {
           "mean": 5.0,
@@ -213,19 +213,19 @@
           "max": 5
         },
         "genre_alignment": {
-          "mean": 4.67,
+          "mean": 4.86,
           "min": 4,
           "max": 5
         },
         "visual_specificity": {
-          "mean": 3.67,
+          "mean": 3.81,
           "min": 3,
           "max": 5
         },
         "creative_specificity": {
-          "mean": 3.33,
+          "mean": 3.42,
           "min": 3,
-          "max": 4
+          "max": 5
         },
         "output_format_validity": {
           "mean": 5.0,
@@ -235,37 +235,37 @@
       }
     },
     "v2": {
-      "overall_mean": 4.33,
+      "overall_mean": 4.46,
       "per_dimension": {
         "narrative_fidelity": {
-          "mean": 5.0,
-          "min": 5,
+          "mean": 4.97,
+          "min": 4,
           "max": 5
         },
         "genre_alignment": {
-          "mean": 5.0,
-          "min": 5,
+          "mean": 4.97,
+          "min": 4,
           "max": 5
         },
         "visual_specificity": {
-          "mean": 3.67,
+          "mean": 4.08,
           "min": 3,
-          "max": 4
+          "max": 5
         },
         "creative_specificity": {
-          "mean": 3.0,
+          "mean": 3.39,
           "min": 3,
-          "max": 3
+          "max": 5
         },
         "output_format_validity": {
-          "mean": 5.0,
-          "min": 5,
+          "mean": 4.86,
+          "min": 3,
           "max": 5
         }
       }
     },
     "v3": {
-      "overall_mean": 4.33,
+      "overall_mean": 4.42,
       "per_dimension": {
         "narrative_fidelity": {
           "mean": 5.0,
@@ -273,7 +273,7 @@
           "max": 5
         },
         "genre_alignment": {
-          "mean": 4.67,
+          "mean": 4.94,
           "min": 4,
           "max": 5
         },
@@ -283,13 +283,13 @@
           "max": 5
         },
         "creative_specificity": {
-          "mean": 3.0,
+          "mean": 3.22,
           "min": 3,
-          "max": 3
+          "max": 5
         },
         "output_format_validity": {
-          "mean": 5.0,
-          "min": 5,
+          "mean": 4.94,
+          "min": 3,
           "max": 5
         }
       }
