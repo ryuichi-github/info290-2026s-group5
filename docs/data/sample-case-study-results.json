@@ -1,0 +1,243 @@
+{
+  "ideas": [
+    {
+      "id": 1,
+      "genre": "Psychological Thriller",
+      "premise": "A man wakes up in a hospital with no memory of his past. People claiming to be his family and friends begin to appear one by one — each with a different account of who he was. As fragments of memory return, he starts to suspect that someone is trying to control what he remembers.",
+      "thematic_core": "Identity is not what you remember — it is what others need you to believe. The horror of discovering that your own past makes you the monster.",
+      "negative_constraints": "Do NOT reveal whether the visitors are real or fabricated until the very end. Do NOT use action sequences or physical violence as plot drivers. Do NOT frame memory recovery as heroic — it should feel increasingly terrifying.",
+      "variants": [
+        {
+          "label": "V1",
+          "blind": "Option A",
+          "desc": "Baseline: no retrieval, no visual grounding",
+          "tagline": "Unraveling the Threads of Identity",
+          "overview": "A man's shattered past resurfaces in a labyrinthine maze of memories, each more deceptive than the last. Reality unravels as he grapples with the chilling truth behind his identity. What if your past was a prison?",
+          "poster_art": "An enigmatic figure stands at the edge of a dimly lit room, a shattered mirror reflecting distorted memories behind him. His reflection reveals only an endless maze of mirrors, hinting at the fractured nature of his identity.",
+          "image": "poster_images/idea1_v1.png",
+          "poster_compare": {
+            "A": "poster_compare/A_flash_idea1_v1.png",
+            "C": "poster_compare/C_flash_idea1_v1.png"
+          },
+          "scores": {
+            "narrative_fidelity": 5,
+            "genre_alignment": 5,
+            "visual_specificity": 3,
+            "creative_specificity": 3,
+            "output_format_validity": 5,
+            "average": 4.2
+          }
+        },
+        {
+          "label": "V2",
+          "blind": "Option B",
+          "desc": "RAG retrieval + poster caption context",
+          "tagline": "Unraveling Memories",
+          "overview": "Lost in a labyrinth of memories, a man grapples with a shocking revelation: his past may be a twisted tapestry of lies. Haunted by visions and visited by enigmatic figures, he embarks on a harrowing quest for the truth.",
+          "poster_art": "A haunting portrait of a man's fractured psyche, the poster features an expressionless figure, surrounded by shattered mirrors reflecting distorted faces.",
+          "image": "poster_images/idea1_v2.png",
+          "poster_compare": {
+            "A": "poster_compare/A_flash_idea1_v2.png",
+            "C": "poster_compare/C_flash_idea1_v2.png"
+          },
+          "scores": {
+            "narrative_fidelity": 5,
+            "genre_alignment": 5,
+            "visual_specificity": 3,
+            "creative_specificity": 3,
+            "output_format_validity": 5,
+            "average": 4.2
+          }
+        },
+        {
+          "label": "V3",
+          "blind": "Option C",
+          "desc": "V2 + iterative LLM-as-Judge refinement",
+          "tagline": "Who controls your past?",
+          "overview": "A man regains consciousness in a hospital, unsure of his past. Friends and family visit, but their stories contradict one another. As his memories resurface, he uncovers a sinister force manipulating his recollections.",
+          "poster_art": "A blurred image of a man in a hospital bed emerges, as figures from his past crowd around him. Their faces are obscured by shadows, emphasizing the uncertainty and fear surrounding his identity.",
+          "image": "poster_images/idea1_v3.png",
+          "poster_compare": {
+            "A": "poster_compare/A_flash_idea1_v3.png",
+            "C": "poster_compare/C_flash_idea1_v3.png"
+          },
+          "scores": {
+            "narrative_fidelity": 5,
+            "genre_alignment": 5,
+            "visual_specificity": 3,
+            "creative_specificity": 3,
+            "output_format_validity": 5,
+            "average": 4.2
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "genre": "Drama — Family & Loss",
+      "premise": "Twin brothers separated at birth are reunited at age 35 — one raised in wealth and privilege in a major city, the other in poverty in a remote rural town on the other side of the world. Forced together by their biological mother's death and a contested inheritance, they spend two weeks in the same house for the first time.",
+      "thematic_core": "Nature versus nurture made flesh: two men who share everything biological and nothing experiential, trying to recognize themselves in each other.",
+      "negative_constraints": "Do NOT resolve the class tension with empathy or reconciliation. The divide should feel real and irreducible. Do NOT make either twin the clear hero or villain.",
+      "variants": [
+        {
+          "label": "V1",
+          "blind": "Option A",
+          "desc": "Baseline: no retrieval, no visual grounding",
+          "tagline": "Blood ties. Different worlds.",
+          "overview": "Two strangers, bound by blood but divided by fate, converge in a familial home that harbors more secrets than answers. As the clock ticks towards resolution, the gulf between them widens. Can nature bridge the unbridgeable chasm wrought by nurture?",
+          "poster_art": "A hauntingly beautiful image of two identical yet disparate landscapes juxtaposed, with a solitary silhouette of a man standing at the edge of each, gazing into the unfamiliar distance.",
+          "image": "poster_images/idea2_v1.png",
+          "poster_compare": {
+            "A": "poster_compare/A_flash_idea2_v1.png",
+            "C": "poster_compare/C_flash_idea2_v1.png"
+          },
+          "scores": {
+            "narrative_fidelity": 5,
+            "genre_alignment": 5,
+            "visual_specificity": 3,
+            "creative_specificity": 5,
+            "output_format_validity": 5,
+            "average": 4.6
+          }
+        },
+        {
+          "label": "V2",
+          "blind": "Option B",
+          "desc": "RAG retrieval + poster caption context",
+          "tagline": "Two halves, one whole. Yet so far apart.",
+          "overview": "Two estranged brothers, raised worlds apart, converge on their late mother's legacy — a bitter inheritance dispute ignites a battle rooted in nature and nurture.",
+          "poster_art": "An evocative split-frame image capturing the contrasting lives of the brothers, their eyes locked across great distance, symbolizing the gulf between them.",
+          "image": "poster_images/idea2_v2.png",
+          "poster_compare": {
+            "A": "poster_compare/A_flash_idea2_v2.png",
+            "C": "poster_compare/C_flash_idea2_v2.png"
+          },
+          "scores": {
+            "narrative_fidelity": 5,
+            "genre_alignment": 5,
+            "visual_specificity": 3,
+            "creative_specificity": 3,
+            "output_format_validity": 5,
+            "average": 4.2
+          }
+        },
+        {
+          "label": "V3",
+          "blind": "Option C",
+          "desc": "V2 + iterative LLM-as-Judge refinement",
+          "tagline": "Blood ties, shattered dreams",
+          "overview": "Two strangers bound by blood collide in a bitter confrontation over their late mother's estate. Raised worlds apart, they grapple to understand the unbridgeable chasm between their lives.",
+          "poster_art": "A striking image of two brothers, dressed in contrasting attire, standing face to face in a dimly lit room. Their eyes locked, expressions tense, a large ominous mansion looming in the background.",
+          "image": "poster_images/idea2_v3.png",
+          "poster_compare": {
+            "A": "poster_compare/A_flash_idea2_v3.png",
+            "C": "poster_compare/C_flash_idea2_v3.png"
+          },
+          "scores": {
+            "narrative_fidelity": 5,
+            "genre_alignment": 5,
+            "visual_specificity": 3,
+            "creative_specificity": 3,
+            "output_format_validity": 5,
+            "average": 4.2
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "genre": "Action Thriller",
+      "premise": "An ordinary 28-year-old data analyst wakes up one morning able to predict events exactly 47 seconds before they happen. Within 72 hours, three governments and a private intelligence firm are hunting her. She finds others with abilities — but they are not all on her side.",
+      "thematic_core": "The burden of seeing what comes next: knowing the future does not mean you can change it, and the people who want to control you know that too.",
+      "negative_constraints": "Do NOT give the protagonist combat training or physical superiority. Her power must feel like a curse as much as an advantage. Do NOT introduce a single mastermind villain — the threat should be systemic and faceless.",
+      "variants": [
+        {
+          "label": "V1",
+          "blind": "Option A",
+          "desc": "Baseline: no retrieval, no visual grounding",
+          "tagline": "Second Sight, Second Chance",
+          "overview": "An extraordinary data analyst's gift of second sight becomes a relentless nightmare when global forces seek to exploit her uncanny ability to foresee disasters. With time running out, she forms an unconventional alliance.",
+          "poster_art": "A shadowy figure watches from behind as our heroine, bathed in ethereal light, clutches a newspaper headline. Government agents pursue in the background, their faces obscured by red, distorted blur.",
+          "image": "poster_images/idea3_v1.png",
+          "poster_compare": {
+            "A": "poster_compare/A_flash_idea3_v1.png",
+            "C": "poster_compare/C_flash_idea3_v1.png"
+          },
+          "scores": {
+            "narrative_fidelity": 5,
+            "genre_alignment": 4,
+            "visual_specificity": 5,
+            "creative_specificity": 4,
+            "output_format_validity": 5,
+            "average": 4.6
+          }
+        },
+        {
+          "label": "V2",
+          "blind": "Option B",
+          "desc": "RAG retrieval + poster caption context",
+          "tagline": "Foresight isn't always a gift.",
+          "overview": "An extraordinary data analyst wakes to a life-altering gift: the ability to foresee events 47 seconds prior. But when three governments and a covert agency seek to harness her power, she's forced into a desperate race.",
+          "poster_art": "A tense, atmospheric image of a woman staring intently at a clock, her reflection showing the ominous looming figures of pursuers closing in behind her.",
+          "image": "poster_images/idea3_v2.png",
+          "poster_compare": {
+            "A": "poster_compare/A_flash_idea3_v2.png",
+            "C": "poster_compare/C_flash_idea3_v2.png"
+          },
+          "scores": {
+            "narrative_fidelity": 5,
+            "genre_alignment": 5,
+            "visual_specificity": 3,
+            "creative_specificity": 3,
+            "output_format_validity": 5,
+            "average": 4.2
+          }
+        },
+        {
+          "label": "V3",
+          "blind": "Option C",
+          "desc": "V2 + iterative LLM-as-Judge refinement",
+          "tagline": "47 seconds between life and death",
+          "overview": "A data analyst's extraordinary ability to see 47 seconds into the future becomes a curse as governments and shadowy organizations race to control her power.",
+          "poster_art": "A close-up of a woman's determined eyes, filled with urgency, as fragmented visions of the future swirl around her in a distorted, dreamlike haze.",
+          "image": "poster_images/idea3_v3.png",
+          "poster_compare": {
+            "A": "poster_compare/A_flash_idea3_v3.png",
+            "C": "poster_compare/C_flash_idea3_v3.png"
+          },
+          "scores": {
+            "narrative_fidelity": 4,
+            "genre_alignment": 5,
+            "visual_specificity": 3,
+            "creative_specificity": 3,
+            "output_format_validity": 5,
+            "average": 3.8
+          }
+        }
+      ]
+    }
+  ],
+  "cross_idea_summary": [
+    {
+      "idea": "Idea 1",
+      "V1_avg": 4.2,
+      "V2_avg": 4.2,
+      "V3_avg": 4.2,
+      "trend": "V1=V2=V3"
+    },
+    {
+      "idea": "Idea 2",
+      "V1_avg": 4.6,
+      "V2_avg": 4.2,
+      "V3_avg": 4.2,
+      "trend": "V1>V2=V3"
+    },
+    {
+      "idea": "Idea 3",
+      "V1_avg": 4.6,
+      "V2_avg": 4.2,
+      "V3_avg": 3.8,
+      "trend": "V1>V2>V3"
+    }
+  ]
+}

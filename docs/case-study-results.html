@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Study Results — INFO 290 Group 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0a; --surface:#141414; --surface2:#1c1c1c; --border:#262626;
+  --accent:#e8c97e; --accent2:#7ecfe8; --accent3:#a8e8a0;
+  --text:#f0ede8; --muted:#777; --dim:#444;
+  --s5:#4ade80; --s4:#a3e635; --s3:#facc15; --s2:#fb923c; --s1:#f87171;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5}
+
+header{border-bottom:1px solid var(--border);padding:1.8rem 3rem;display:flex;align-items:baseline;gap:1.5rem;flex-wrap:wrap}
+header h1{font-family:'DM Serif Display',serif;font-size:1.4rem;font-weight:400;color:var(--accent)}
+header p{font-size:.72rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 3rem;background:var(--surface);overflow-x:auto}
+.tab-btn{padding:.7rem 1.4rem;font-size:.72rem;font-family:'DM Sans',sans-serif;font-weight:400;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;white-space:nowrap}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+main{max-width:1380px;margin:0 auto;padding:2.5rem 3rem}
+
+.premise{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.5rem;margin-bottom:1.8rem}
+.genre-pill{display:inline-block;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);border:1px solid var(--accent2);padding:.2rem .7rem;border-radius:100px;margin-bottom:.6rem}
+.premise p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.premise strong{color:var(--text);font-weight:400}
+
+.controls{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.8rem;flex-wrap:wrap}
+.ctrl-label{font-size:.72rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.toggle{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.t-track{position:absolute;inset:0;background:var(--border);border-radius:10px;transition:background .2s}
+.toggle input:checked+.t-track{background:var(--accent)}
+.t-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none}
+.toggle input:checked~.t-thumb{transform:translateX(16px)}
+
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-bottom:2rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s}
+.card:hover{border-color:#383838}
+.card-body{padding:1.2rem 1.3rem}
+.variant-badge{display:inline-block;font-size:.6rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;background:rgba(232,201,126,.12);padding:.25rem .65rem;border-radius:100px;border:1px solid rgba(232,201,126,.25);color:var(--accent);margin-bottom:.7rem}
+.field-label{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:.3rem;margin-top:.6rem}
+.field-label:first-of-type{margin-top:0}
+.tagline{font-family:'DM Serif Display',serif;font-size:1.05rem;line-height:1.35;margin-bottom:.5rem;color:var(--text)}
+.overview{font-size:.76rem;line-height:1.65;color:var(--muted);margin-bottom:.5rem}
+.poster-art-text{font-size:.72rem;line-height:1.6;color:var(--dim);border-left:2px solid var(--border);padding-left:.8rem;margin-bottom:.9rem}
+
+.scores{display:none;flex-direction:column;gap:.35rem;padding-top:.9rem;border-top:1px solid var(--border)}
+.scores.on{display:flex}
+.sr{display:flex;align-items:center;gap:.5rem}
+.sl{font-size:.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;width:88px;flex-shrink:0}
+.sb-wrap{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.sb{height:100%;border-radius:2px;transition:width .5s ease}
+.sv{font-size:.62rem;color:var(--muted);width:16px;text-align:right;flex-shrink:0}
+.avg-line{font-size:.68rem;color:var(--muted);text-align:right;padding-top:.35rem}
+.avg-line strong{color:var(--accent);font-weight:500;font-size:.82rem}
+
+.reveal{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.3rem 1.5rem;margin-bottom:2rem}
+.reveal h3{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--accent);margin-bottom:.9rem}
+.reveal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem}
+.ri{padding:.9rem 1rem;background:var(--surface2);border-radius:8px;border:1px solid var(--border)}
+.ri .vlabel{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:.2rem}
+.ri .vname{font-size:.82rem;color:var(--text);margin-bottom:.15rem}
+.ri .vdesc{font-size:.7rem;color:var(--muted)}
+
+.compare-section{margin-top:2rem;padding-top:1.8rem;border-top:1px solid var(--border)}
+.compare-section h3{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--text);margin-bottom:.3rem}
+.compare-sub{font-size:.72rem;color:var(--muted);margin-bottom:1.4rem;line-height:1.6}
+.approach-row{margin-bottom:1.6rem}
+.approach-label{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);margin-bottom:.7rem;padding-bottom:.35rem;border-bottom:1px solid var(--border)}
+.compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.compare-cell{background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.compare-cell img{width:100%;display:block}
+.compare-cell-label{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:.5rem .7rem;text-align:center}
+.img-pending{width:100%;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;background:var(--surface2);color:var(--dim);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase}
+
+.summary-section{margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border)}
+.summary-section h2{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--text);margin-bottom:.4rem}
+.summary-sub{font-size:.76rem;color:var(--muted);margin-bottom:1.4rem}
+.summary-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.summary-table th{text-align:left;padding:.5rem .8rem;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);font-weight:400}
+.summary-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--muted)}
+.summary-table td:first-child{color:var(--text)}
+
+footer{border-top:1px solid var(--border);padding:1.2rem 3rem;display:flex;justify-content:space-between;align-items:center;margin-top:4rem;flex-wrap:wrap;gap:.5rem}
+footer p{font-size:.68rem;color:var(--dim);letter-spacing:.04em}
+
+@media(max-width:860px){
+  .cards,.compare-grid,.reveal-grid{grid-template-columns:1fr}
+  main{padding:1.5rem}
+  header,footer,.tabs{padding-left:1.5rem;padding-right:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Case Study Results</h1>
+  <p>INFO 290 · Group 5 · UC Berkeley MIMS</p>
+</header>
+
+<div class="tabs" id="tabs"></div>
+
+<main>
+  <div id="premise-area"></div>
+  <div class="controls">
+    <span class="ctrl-label">Show LLM-as-Judge scores</span>
+    <label class="toggle">
+      <input type="checkbox" id="score-toggle" onchange="toggleScores(this.checked)">
+      <span class="t-track"></span><span class="t-thumb"></span>
+    </label>
+  </div>
+  <div class="cards" id="cards-area"></div>
+  <div class="reveal" id="reveal"></div>
+  <div id="compare-area"></div>
+
+  <div class="summary-section">
+    <h2>Cross-idea summary</h2>
+    <p class="summary-sub">Average LLM-as-Judge scores across all three ideas (1 run each, n=1).</p>
+    <table class="summary-table">
+      <thead><tr><th>Idea</th><th>V1 avg</th><th>V2 avg</th><th>V3 avg</th><th>Trend</th></tr></thead>
+      <tbody id="summary-body"></tbody>
+    </table>
+  </div>
+</main>
+
+<footer>
+  <p>INFO 290 · Group 5 · Ryuichi Ikeda, Priya Charagondla, Shivani Parikh, Nseke Ngilbus</p>
+  <p>For academic research purposes only.</p>
+</footer>
+
+<script>
+var SCORE_LABELS = {
+  narrative_fidelity:'Narrative', genre_alignment:'Genre',
+  visual_specificity:'Visual', creative_specificity:'Creative',
+  output_format_validity:'Format'
+};
+var SCORE_COLORS = {'5':'#4ade80','4':'#a3e635','3':'#facc15','2':'#fb923c','1':'#f87171'};
+var VARIANT_NAMES = {V1:'Zero-Shot Baseline', V2:'RAG + Visual Grounding', V3:'Agentic Loop'};
+var DIMS = ['narrative_fidelity','genre_alignment','visual_specificity','creative_specificity','output_format_validity'];
+
+var DATA = null;
+var showScores = false;
+
+function handleImgError(img) {
+  var div = document.createElement('div');
+  div.className = 'img-pending';
+  div.textContent = 'Image pending';
+  img.parentNode.replaceChild(div, img);
+}
+
+async function init() {
+  try {
+    var res = await fetch('data/sample-case-study-results.json');
+    DATA = await res.json();
+  } catch(e) {
+    document.querySelector('main').innerHTML = '<p style="padding:2rem;color:var(--muted)">Could not load data/sample-case-study-results.json</p>';
+    return;
+  }
+  buildTabs();
+  buildSummary();
+  renderIdea(0);
+}
+
+function buildTabs() {
+  var h = '';
+  for (var i = 0; i < DATA.ideas.length; i++) {
+    var idea = DATA.ideas[i];
+    h += '<button class="tab-btn' + (i === 0 ? ' active' : '') + '" onclick="selectIdea(' + i + ')">'
+      + 'Idea ' + idea.id + ' \u2014 ' + idea.genre + '</button>';
+  }
+  document.getElementById('tabs').innerHTML = h;
+}
+
+function buildSummary() {
+  var h = '';
+  for (var i = 0; i < DATA.cross_idea_summary.length; i++) {
+    var row = DATA.cross_idea_summary[i];
+    var best = Math.max(row.V1_avg, row.V2_avg, row.V3_avg);
+    h += '<tr><td>' + row.idea + '</td>';
+    [row.V1_avg, row.V2_avg, row.V3_avg].forEach(function(v) {
+      if (v === best) {
+        h += '<td><strong style="color:var(--accent)">' + v.toFixed(2) + '</strong></td>';
+      } else {
+        h += '<td>' + v.toFixed(2) + '</td>';
+      }
+    });
+    h += '<td style="color:var(--muted)">' + row.trend + '</td></tr>';
+  }
+  document.getElementById('summary-body').innerHTML = h;
+}
+
+function selectIdea(idx) {
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('active', i === idx);
+  renderIdea(idx);
+}
+
+function renderIdea(idx) {
+  var idea = DATA.ideas[idx];
+
+  // premise
+  var ph = '<div class="premise"><span class="genre-pill">' + idea.genre + '</span>'
+    + '<p><strong>Premise:</strong> ' + idea.premise + '</p>'
+    + '<p style="margin-top:.4rem"><strong>Theme:</strong> ' + idea.thematic_core + '</p>';
+  if (idea.negative_constraints) {
+    ph += '<p style="margin-top:.4rem"><strong>Constraints:</strong> ' + idea.negative_constraints + '</p>';
+  }
+  ph += '</div>';
+  document.getElementById('premise-area').innerHTML = ph;
+
+  // text-only cards
+  var ch = '';
+  for (var vi = 0; vi < idea.variants.length; vi++) {
+    var v = idea.variants[vi];
+    ch += '<div class="card"><div class="card-body">'
+      + '<span class="variant-badge">' + v.label + ' \u2014 ' + VARIANT_NAMES[v.label] + '</span>'
+      + '<p class="field-label">Tagline</p>'
+      + '<p class="tagline">\u201C' + v.tagline + '\u201D</p>'
+      + '<p class="field-label">Overview</p>'
+      + '<p class="overview">' + v.overview + '</p>'
+      + '<p class="field-label">Poster Art Direction</p>'
+      + '<p class="poster-art-text">' + v.poster_art + '</p>'
+      + '<div class="scores' + (showScores ? ' on' : '') + '">';
+    for (var di = 0; di < DIMS.length; di++) {
+      var dim = DIMS[di];
+      var val = v.scores[dim];
+      ch += '<div class="sr"><span class="sl">' + SCORE_LABELS[dim] + '</span>'
+        + '<div class="sb-wrap"><div class="sb" style="width:' + (val * 20) + '%;background:' + SCORE_COLORS[val] + '"></div></div>'
+        + '<span class="sv">' + val + '</span></div>';
+    }
+    ch += '<p class="avg-line">avg <strong>' + v.scores.average.toFixed(2) + '</strong> / 5.00</p>'
+      + '</div></div></div>';
+  }
+  document.getElementById('cards-area').innerHTML = ch;
+
+  // reveal
+  var rh = '<h3>Variant details</h3><div class="reveal-grid">';
+  for (var ri = 0; ri < idea.variants.length; ri++) {
+    var rv = idea.variants[ri];
+    rh += '<div class="ri"><p class="vlabel">' + rv.label + '</p>'
+      + '<p class="vname">' + VARIANT_NAMES[rv.label] + '</p>'
+      + '<p class="vdesc">' + rv.desc + '</p></div>';
+  }
+  rh += '</div>';
+  document.getElementById('reveal').innerHTML = rh;
+
+  // poster compare
+  var hasCompare = false;
+  for (var ci = 0; ci < idea.variants.length; ci++) {
+    if (idea.variants[ci].poster_compare) { hasCompare = true; break; }
+  }
+  if (!hasCompare) {
+    document.getElementById('compare-area').innerHTML = '';
+    return;
+  }
+
+  var cmp = '<div class="compare-section">'
+    + '<h3>Generated Poster Images</h3>'
+    + '<p class="compare-sub">'
+    + 'Two prompt strategies for Nano Banana (gemini-3.1-flash-image-preview).<br>'
+    + '<strong>Approach A</strong> \u2014 Mistral short art_direction (~46 words) passed directly.<br>'
+    + '<strong>Approach C</strong> \u2014 GPT-4o 6-layer expanded prompt (~250 words).</p>';
+
+  ['A', 'C'].forEach(function(approach) {
+    var label = approach === 'A'
+      ? 'Approach A \u2014 Mistral short \u2192 Nano Banana'
+      : 'Approach C \u2014 GPT-4o expanded \u2192 Nano Banana';
+    cmp += '<div class="approach-row"><p class="approach-label">' + label + '</p><div class="compare-grid">';
+    for (var gi = 0; gi < idea.variants.length; gi++) {
+      var gv = idea.variants[gi];
+      var src = (gv.poster_compare && gv.poster_compare[approach]) || '';
+      cmp += '<div class="compare-cell">';
+      if (src) {
+        cmp += '<img src="' + src + '" alt="' + approach + ' ' + gv.label + '" onerror="handleImgError(this)">';
+      } else {
+        cmp += '<div class="img-pending">Image pending</div>';
+      }
+      cmp += '<p class="compare-cell-label">' + approach + ' \u2014 ' + gv.label + '</p></div>';
+    }
+    cmp += '</div></div>';
+  });
+  cmp += '</div>';
+  document.getElementById('compare-area').innerHTML = cmp;
+}
+
+function toggleScores(val) {
+  showScores = val;
+  var els = document.querySelectorAll('.scores');
+  for (var i = 0; i < els.length; i++) els[i].classList.toggle('on', val);
+}
+
+init();
+</script>
+</body>
+</html>
