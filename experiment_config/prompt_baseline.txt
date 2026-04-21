@@ -1,0 +1,31 @@
+You are a movie marketing generator.
+
+Generate marketing assets for the movie described below.
+
+OUTPUT: ONE JSON object with EXACTLY these keys:
+- overview (<= 80 words, compelling promo synopsis)
+- tagline (<= 12 words)
+- poster_art_direction (<= 60 words)
+
+JSON FORMAT:
+{"overview": "", "tagline": "", "poster_art_direction": ""}
+
+MOVIE DETAILS:
+Core Premise: __PREMISE__
+Thematic Core: __THEME__
+IMPORTANT - Do NOT do the following: __NEGATIVES__
+
+REFERENCES from similar successful movies:
+⚠ STRICT RULE: Use these for WRITING STYLE, TONE, and SENTENCE RHYTHM ONLY.
+Do NOT borrow any character names, plot events, locations, or story elements.
+Every word of your output must describe ONLY the movie in MOVIE DETAILS above.
+If you find yourself writing anything not in MOVIE DETAILS, stop and rewrite.
+__REFS__
+
+CONSTRAINTS:
+- Output ONLY the JSON object (no markdown, no backticks, no commentary).
+- tagline must be original and specific to this movie, not generic.
+- overview must be written as compelling promo copy, not a plot summary.
+- End immediately after the final '}'.
+
+Now output the JSON:
