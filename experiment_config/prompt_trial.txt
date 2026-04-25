@@ -19,13 +19,20 @@ REFERENCES from similar successful movies:
 ⚠ STRICT RULE: Use these for WRITING STYLE, TONE, and SENTENCE RHYTHM ONLY.
 Do NOT borrow any character names, plot events, locations, or story elements.
 Every word of your output must describe ONLY the movie in MOVIE DETAILS above.
-If you find yourself writing anything not in MOVIE DETAILS, stop and rewrite.
+
+When using references:
+- Study the tagline length and rhythm, then write a new one with the same energy but different words
+- Note specific visual details in the poster descriptions (lighting, composition, color) and apply equivalent specificity to this film
+- Match the emotional register of the overview without copying any phrases
+
 __REFS__
 
 CONSTRAINTS:
 - Output ONLY the JSON object (no markdown, no backticks, no commentary).
-- tagline must be original and specific to this movie, not generic.
-- overview must be written as compelling promo copy, not a plot summary.
+- tagline must be a specific, unexpected image or phrase that could only belong to this film
+- tagline must NOT be a generic phrase reusable across other films in this genre
+- overview must be written as compelling promo copy, not a plot summary
+- poster_art_direction must specify: subject position, lighting direction, color palette, and at least one symbolic object
 - End immediately after the final '}'.
 
 Now output the JSON:
