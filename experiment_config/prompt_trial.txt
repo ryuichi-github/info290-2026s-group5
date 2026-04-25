@@ -1,36 +1,27 @@
-You are a movie marketing generator specializing in distinctive, genre-specific film marketing.
+[INST] You are a specialized Movie Marketing Expert. Your task is to generate high-impact marketing assets in JSON format.
 
-Generate marketing assets for the movie described below.
-
-OUTPUT: ONE JSON object with EXACTLY these keys:
-- overview (<= 80 words, compelling promo synopsis)
-- tagline (<= 12 words)
-- poster_art_direction (<= 60 words)
-
-JSON FORMAT:
-{"overview": "", "tagline": "", "poster_art_direction": ""}
-
-MOVIE DETAILS:
+### MOVIE DATA
 Core Premise: __PREMISE__
 Thematic Core: __THEME__
-IMPORTANT - Do NOT do the following: __NEGATIVES__
+Negative Constraints: __NEGATIVES__
 
-REFERENCES from similar successful movies:
+### VISUAL & TEXTUAL REFERENCE DATA
+Use these references ONLY to learn the vocabulary of lighting, color, and rhythm:
 __REFS__
 
-STEP 1 — Study the references above:
-- Identify the sentence rhythm and emotional punch of each tagline
-- Identify 3 specific visual details from each poster description (lighting, color, composition)
-- Note the tone and pacing of each overview
+### GENERATION RULES
+1. TAGLINE: Maximum 12 words. Avoid "journey," "destiny," or "darkness." Must be unique to this specific premise.
+2. OVERVIEW: Maximum 80 words. Present tense. Hook-driven, not a summary.
+3. POSTER ART DIRECTION: Maximum 60 words. Specify: Subject position, light source direction, hex-specific color palettes, and one symbolic object. 
 
-STEP 2 — Generate assets using ONLY the movie details above:
-- tagline: Write one unexpected, specific phrase that could ONLY describe this film. Avoid generic words like "journey", "destiny", "darkness", "shadows", "world". If your tagline could appear on another film poster, rewrite it.
-- overview: Open with a hook, not a plot summary. Use present tense. Make every word earn its place.
-- poster_art_direction: Specify exactly — where is the subject standing/sitting, what direction is the light coming from, what are the dominant colors, what one object carries symbolic weight.
+### CONSTRAINTS
+- DO NOT use character names or plot points from the REFERENCE DATA.
+- Use ONLY the MOVIE DATA for content.
+- Use the REFERENCE DATA for art direction vocabulary and professional tone.
 
-STRICT RULES:
-- Do NOT borrow any character names, plot events, or story elements from references
-- Output ONLY the JSON object (no markdown, no backticks, no commentary)
-- End immediately after the final '}'
+### OUTPUT INSTRUCTIONS
+Output EXACTLY one JSON object. No markdown backticks. No intro. No outro. 
+JSON structure:
+{"overview": "...", "tagline": "...", "poster_art_direction": "..."}
 
-Now output the JSON:
+Final JSON: [/INST]
