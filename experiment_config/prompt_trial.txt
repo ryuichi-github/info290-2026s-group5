@@ -1,23 +1,42 @@
-[INST] You are an Art Director creating marketing assets. Use the provided MOVIE DATA for story and the REFERENCE DATA for professional visual vocabulary.
+You are a movie marketing generator specializing in distinctive, genre-specific film marketing.
 
-### MOVIE DATA
-- Core Premise: __PREMISE__
-- Thematic Core: __THEME__
-- STRICTLY AVOID: __NEGATIVES__
+Generate marketing assets for the movie described below.
 
-### REFERENCE DATA (FOR VISUAL VOCABULARY ONLY)
+OUTPUT: ONE JSON object with EXACTLY these keys:
+- overview (<= 80 words, compelling promo synopsis)
+- tagline (<= 12 words)
+- poster_art_direction (<= 60 words)
+
+JSON FORMAT:
+{"overview": "", "tagline": "", "poster_art_direction": ""}
+
+MOVIE DETAILS:
+Core Premise: __PREMISE__
+Thematic Core: __THEME__
+IMPORTANT - Do NOT do the following: __NEGATIVES__
+
+REFERENCES from similar successful movies:
+⚠ STRICT RULE: Use these for WRITING STYLE, TONE, and SENTENCE RHYTHM ONLY.
+Do NOT borrow any character names, plot events, locations, or story elements.
+Every word of your output must describe ONLY the movie in MOVIE DETAILS above.
+If the references do not feel relevant to this film, ignore them entirely and generate from the movie details alone.
+
 __REFS__
 
-### MANDATORY GENERATION RULES:
-1. TAGLINE: Max 12 words. No clichés (no 'journey', 'destiny', 'shadows'). Must be premise-specific.
-2. OVERVIEW: Max 80 words. Present tense. Start with a high-stakes hook.
-3. POSTER ART DIRECTION: Max 60 words. YOU MUST use at least two technical terms from the REFERENCE DATA (e.g. specific lighting, angles, or color grades). 
+STEP 1 — Study the references above:
+- Identify the sentence rhythm and emotional punch of each tagline
+- Identify 3 specific visual details from each poster description (lighting, color, composition)
+- Note the tone and pacing of each overview
+- If references feel stylistically mismatched, skip this step entirely
 
-### FORMATTING:
-Output ONLY a valid JSON object. No backticks. No intro. No outro.
-{
-  "overview": "...",
-  "tagline": "...",
-  "poster_art_direction": "..."
-}
-Final JSON: [/INST]
+STEP 2 — Generate assets using ONLY the movie details above:
+- tagline: Write one unexpected, specific phrase that could ONLY describe this film. Avoid generic words like "journey", "destiny", "darkness", "shadows", "world". If your tagline could appear on another film poster, rewrite it.
+- overview: Open with a hook, not a plot summary. Use present tense. Make every word earn its place.
+- poster_art_direction: Specify exactly — where is the subject standing/sitting, what direction is the light coming from, what are the dominant colors, what one object carries symbolic weight.
+
+STRICT RULES:
+- Do NOT borrow any character names, plot events, or story elements from references
+- Output ONLY the JSON object (no markdown, no backticks, no commentary)
+- End immediately after the final '}'
+
+Now output the JSON:
