@@ -1,27 +1,23 @@
-[INST] You are a specialized Movie Marketing Expert. Your task is to generate high-impact marketing assets in JSON format.
+[INST] You are an Art Director creating marketing assets. Use the provided MOVIE DATA for story and the REFERENCE DATA for professional visual vocabulary.
 
 ### MOVIE DATA
-Core Premise: __PREMISE__
-Thematic Core: __THEME__
-Negative Constraints: __NEGATIVES__
+- Core Premise: __PREMISE__
+- Thematic Core: __THEME__
+- STRICTLY AVOID: __NEGATIVES__
 
-### VISUAL & TEXTUAL REFERENCE DATA
-Use these references ONLY to learn the vocabulary of lighting, color, and rhythm:
+### REFERENCE DATA (FOR VISUAL VOCABULARY ONLY)
 __REFS__
 
-### GENERATION RULES
-1. TAGLINE: Maximum 12 words. Avoid "journey," "destiny," or "darkness." Must be unique to this specific premise.
-2. OVERVIEW: Maximum 80 words. Present tense. Hook-driven, not a summary.
-3. POSTER ART DIRECTION: Maximum 60 words. Specify: Subject position, light source direction, hex-specific color palettes, and one symbolic object. 
+### MANDATORY GENERATION RULES:
+1. TAGLINE: Max 12 words. No clichés (no 'journey', 'destiny', 'shadows'). Must be premise-specific.
+2. OVERVIEW: Max 80 words. Present tense. Start with a high-stakes hook.
+3. POSTER ART DIRECTION: Max 60 words. YOU MUST use at least two technical terms from the REFERENCE DATA (e.g. specific lighting, angles, or color grades). 
 
-### CONSTRAINTS
-- DO NOT use character names or plot points from the REFERENCE DATA.
-- Use ONLY the MOVIE DATA for content.
-- Use the REFERENCE DATA for art direction vocabulary and professional tone.
-
-### OUTPUT INSTRUCTIONS
-Output EXACTLY one JSON object. No markdown backticks. No intro. No outro. 
-JSON structure:
-{"overview": "...", "tagline": "...", "poster_art_direction": "..."}
-
+### FORMATTING:
+Output ONLY a valid JSON object. No backticks. No intro. No outro.
+{
+  "overview": "...",
+  "tagline": "...",
+  "poster_art_direction": "..."
+}
 Final JSON: [/INST]
