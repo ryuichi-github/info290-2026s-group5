@@ -11,13 +11,13 @@
     "3": "Mostly aligned but uses some 'one-size-fits-all' marketing adjectives.",
     "1": "Tonal mismatch (e.g., using 'thrilling' for a somber tragedy)."
   },
-  "visual_sophistication": {
+  "visual_specificity": {
     "description": "Poster direction quality and use of technical vocabulary",
     "5": "Uses professional cinematography terms (e.g., 'low-key lighting', 'asymmetrical composition', 'analogous color scheme'). Provides depth and texture beyond simple placement.",
     "3": "Actionable (Position, Light, Color, Object) but uses standard, non-technical English.",
     "1": "Generic descriptors like 'epic' or 'dark' with no actionable visual data."
   },
-  "creative_distinctiveness": {
+  "creative_specificity": {
     "description": "Uniqueness of the phrasing and imagery",
     "5": "The tagline and overview use a 'striking' image or phrase that creates a vivid mental picture unique to this specific premise. Zero clichés.",
     "3": "Professional and competent, but contains common tropes (e.g., 'In a world where...').",
