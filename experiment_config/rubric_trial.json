@@ -1,32 +1,32 @@
 {
   "narrative_fidelity": {
     "description": "Output follows intended premise without adding unintended plot elements",
-    "5": "No negative_constraints violated. Every sentence is traceable to core_premise or thematic_core. Zero invented characters, locations, or plot elements.",
-    "3": "Minor trope drift or one incidental element not in the premise; no invented characters or major additions.",
-    "1": "Invented characters, disappearances, villains, or plot elements explicitly excluded by negative_constraints."
+    "5": "No negative_constraints violated. Every sentence is traceable to core_premise. Zero invented characters. Content feels integrated, not just listed.",
+    "3": "Minor trope drift or one incidental element not in the premise.",
+    "1": "Explicit violations of negative_constraints or major hallucinations."
   },
   "genre_alignment": {
-    "description": "Output matches the intended genre and tone",
-    "5": "Vocabulary, sentence rhythm, and emotional register fully match the target genre with no tonal slippage. Word choices are specific to this genre, not generic marketing language.",
-    "3": "Mostly aligned but one phrase or image feels like it belongs to a different genre.",
-    "1": "Clearly wrong tone — e.g., action-thriller language for a slow psychological piece."
+    "description": "Vocabulary and emotional register match the target genre",
+    "5": "Masterful tone. Uses genre-specific 'flavor words' that evoke the mood. No generic 'marketing speak'.",
+    "3": "Mostly aligned but uses some 'one-size-fits-all' marketing adjectives.",
+    "1": "Tonal mismatch (e.g., using 'thrilling' for a somber tragedy)."
   },
-  "visual_specificity": {
-    "description": "Poster direction includes concrete, actionable visual elements",
-    "5": "Specifies ALL of: subject position, lighting direction, color palette, and at least one symbolic object. A designer could start sketching immediately with no guesswork.",
-    "3": "Specifies 2 of the above elements but leaves others vague or atmospheric.",
-    "1": "Only generic descriptors like 'dark and moody' with no actionable detail."
+  "visual_sophistication": {
+    "description": "Poster direction quality and use of technical vocabulary",
+    "5": "Uses professional cinematography terms (e.g., 'low-key lighting', 'asymmetrical composition', 'analogous color scheme'). Provides depth and texture beyond simple placement.",
+    "3": "Actionable (Position, Light, Color, Object) but uses standard, non-technical English.",
+    "1": "Generic descriptors like 'epic' or 'dark' with no actionable visual data."
   },
-  "creative_specificity": {
-    "description": "Output contains distinctive, non-generic phrasing",
-    "5": "Tagline contains a specific, unexpected image or word combination unique to this film's premise. Could not be reused for any other film in this genre.",
-    "3": "Competent and on-brief but interchangeable with many other films in this genre.",
-    "1": "Cliche phrase that appears verbatim in common marketing templates."
+  "creative_distinctiveness": {
+    "description": "Uniqueness of the phrasing and imagery",
+    "5": "The tagline and overview use a 'striking' image or phrase that creates a vivid mental picture unique to this specific premise. Zero clichés.",
+    "3": "Professional and competent, but contains common tropes (e.g., 'In a world where...').",
+    "1": "Highly derivative; feels like a generic template."
   },
   "output_format_validity": {
-    "description": "Output follows required structure and word limits",
-    "5": "All three fields present. tagline is 12 words or fewer, overview is 80 words or fewer, poster_art_direction is 60 words or fewer. Verified by count, not estimate.",
-    "3": "All fields present but one field slightly exceeds the word limit (20% over or less).",
-    "1": "A required field is missing, or one field is more than 20% over the word limit."
+    "description": "Strict adherence to structure and word counts",
+    "5": "JSON is valid. All counts within limits. Precise and concise.",
+    "3": "Valid JSON, but one field is slightly over word count (1-5 words).",
+    "1": "JSON is malformed or significantly exceeds limits."
   }
 }
