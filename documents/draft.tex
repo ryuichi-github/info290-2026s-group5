@@ -42,18 +42,6 @@
 
 \begin{document}
 \maketitle
-% ══════════════════════════════════════════════════════════════
-% NOTE FOR TEAM: Color coding in this draft
-% ══════════════════════════════════════════════════════════════
-\begin{center}
-\fbox{\begin{minipage}{0.9\columnwidth}
-\small
-\textbf{Draft color coding — remove before final submission.}\\[4pt]
-Black = established facts, system descriptions, methodology (fixed).\\
-\textcolor{blue}{Blue = findings supported by current data. Direction is solid, but wording may be refined. Convert to black in final version.}\\
-\textcolor{red}{Red = claims that depend on pending experiments (rubric tightening, re-evaluation, statistical tests). Must be updated or confirmed before submission.}\\[4pt]
-\end{minipage}}
-\end{center}
 
 % ══════════════════════════════════════════════════════════════
 \begin{abstract}
@@ -61,21 +49,20 @@ We present a system that generates professional marketing assets for films---tag
 Outputs are evaluated on five dimensions by GPT-4o, using a rubric designed around failure modes observed during development.
 
 Our investigation yields two central findings.
-\textcolor{blue}{First, across all three generators tested (Mistral-7B, Gemini~2.5~Flash, GPT-4o-mini) and both $n{=}3$ and $n{=}20$ sample sizes, no variant consistently benefits from retrieved context: V1 performs comparably to or better than V2 and V3 in all conditions, with no statistically significant pairwise differences (Wilcoxon $p{=}0.06$).}
+First, across all three generators tested (Mistral-7B, Gemini~2.5~Flash, GPT-4o-mini) and both $n{=}3$ and $n{=}20$ sample sizes, no variant consistently benefits from retrieved context: V1 performs comparably to or better than V2 and V3 in all conditions, with no statistically significant pairwise differences.
 
-\textcolor{blue}{Second, automated evaluation of creative outputs poses unique methodological challenges: four of five rubric dimensions score at or near ceiling for all variants, leaving creative specificity as the only clearly discriminating dimension.}
-\textcolor{red}{Rubric tightening partially resolves ceiling effects on some dimensions but confirms that low creative specificity reflects a genuine generator limitation rather than a measurement artifact.}
-% ^^^ RED: need to check.
+Second, automated evaluation of creative outputs poses unique methodological challenges: four of five rubric dimensions score at or near ceiling for all variants, leaving creative specificity as the only clearly discriminating dimension.
+Rubric tightening partially resolves ceiling effects on some dimensions but confirms that low creative specificity reflects a genuine generator limitation rather than a measurement artifact.
 \end{abstract}
 
 % ══════════════════════════════════════════════════════════════
 \section{Introduction}
 
-Film marketing assets—taglines, promotional synopses, and poster art direction—are produced through iterative collaboration between creative teams, market analysts, and studio executives. This process is slow, expensive, and relies on tacit knowledge of genre conventions that is difficult to codify. While large language models (LLMs) can generate creative text, their zero-shot outputs typically lack two properties that professional marketing demands: \textit{strategic grounding} in proven industry patterns, and \textit{genre-specific visual vocabulary} for art direction.
+Film marketing assets---taglines, promotional synopses, and poster art direction---are produced through iterative collaboration between creative teams, market analysts, and studio executives. This process is slow, expensive, and relies on tacit knowledge of genre conventions that is difficult to codify. While large language models (LLMs) can generate creative text, their zero-shot outputs typically lack two properties that professional marketing demands: \textit{strategic grounding} in proven industry patterns, and \textit{genre-specific visual vocabulary} for art direction.
 
 We address this gap by building a system that takes a \textit{structured movie concept} (premise, thematic core, and constraints) and uses \textit{retrieval-augmented generation with visual grounding} to produce \textit{marketing assets}: a tagline, a promotional overview, and poster art direction. The film industry serves as a concrete evaluation domain, but the architecture generalizes to any domain where creative assets must balance originality with adherence to genre convention.
 
-Our approach is guided by two hypotheses. First, grounding generation in historical patterns from thematically similar films—including visual descriptions of their poster art—will improve output quality beyond what zero-shot generation achieves. Second, iterative refinement through an LLM-as-Judge feedback loop can further improve quality by identifying and correcting specific weaknesses. Figure~\ref{fig:journey} illustrates the end-to-end user journey.
+Our approach is guided by two hypotheses. First, grounding generation in historical patterns from thematically similar films---including visual descriptions of their poster art---will improve output quality beyond what zero-shot generation achieves. Second, iterative refinement through an LLM-as-Judge feedback loop can further improve quality by identifying and correcting specific weaknesses. Figure~\ref{fig:journey} illustrates the end-to-end user journey.
 
 % --- FIGURE 1 PLACEHOLDER ---
 \begin{figure}[t]
@@ -125,7 +112,7 @@ Figure~\ref{fig:tmdb_sample} shows a representative record from the corpus.
 \end{figure}
 
 \subsection{Visual Grounding via Poster Captions}
-Early experiments revealed that without visual references, generated poster art direction was generic and lacked compositional detail—e.g., outputs like ``dark and moody poster'' that no designer could act on. To address this, we pre-computed structured visual descriptions for all 4,312 movie posters.
+Early experiments revealed that without visual references, generated poster art direction was generic and lacked compositional detail---e.g., outputs like ``dark and moody poster'' that no designer could act on. To address this, we pre-computed structured visual descriptions for all 4,312 movie posters.
 
 We evaluated three vision-language models across four configurations (Figure~\ref{fig:vlm}) before selecting Gemini~2.5~Flash, which produces structured prose across six visual axes: composition, lighting, color palette, mood, typography, and symbolic elements. Captions were pre-computed for all posters via the Gemini API prior to any experiments and stored as an additional column in the retrieval corpus, requiring no API calls at inference time.
 \begin{figure}[t]
@@ -166,7 +153,7 @@ V1 / V2 / V3 comparison.}
 \label{fig:architecture}
 \end{figure}
 
-We implemented three system variants (Figure~\ref{fig:architecture}) that share a common output format—a JSON object with tagline, overview, and poster art direction—and differ in how the generation prompt is constructed. Table~\ref{tab:variants} summarizes their components.
+We implemented three system variants (Figure~\ref{fig:architecture}) that share a common output format---a JSON object with tagline, overview, and poster art direction---and differ in how the generation prompt is constructed. Table~\ref{tab:variants} summarizes their components.
 
 \begin{table}[h]
 \centering
@@ -189,30 +176,27 @@ Early experiments with free-text prompts produced \textit{narrative contaminatio
 
 \begin{itemize}[nosep,leftmargin=*]
 \item \texttt{core\_premise}: what happens in the film.
-\item \texttt{thematic\_core}: what the film means—its central tension.
+\item \texttt{thematic\_core}: what the film means---its central tension.
 \item \texttt{negative\_constraints}: what the generator must \textit{not} do.
 \end{itemize}
 
 With the structured format, the generator no longer invents plot elements excluded by the user's constraints. This design is shared across all three variants.
 
 \subsection{Retrieval (V2, V3)}
-Each movie in the corpus is represented by concatenating its title, tagline, and overview, then embedding with Sentence-BERT (all-MiniLM-L6-v2, 384~dim) and indexing in FAISS. At query time, the user's premise is embedded and matched against this index, returning the top-$k$ most similar films (where $k$ is the number of retrieved references, determined by hyperparameter tuning in Section~5.4). For each retrieved film, a reference block is assembled containing its tagline, overview, and pre-computed poster caption.
+Each movie in the corpus is represented by concatenating its title, tagline, and overview, then embedding with Sentence-BERT (all-MiniLM-L6-v2, 384~dim) and indexing in FAISS. At query time, the user's premise is embedded and matched against this index, returning the top-$k$ most similar films (where $k$ is the number of retrieved references, determined by hyperparameter tuning in Section~5.6). For each retrieved film, a reference block is assembled containing its tagline, overview, and pre-computed poster caption.
 
-Early experiments showed that retrieval significantly improved stylistic diversity compared to zero-shot generation, but also introduced risks of \textit{narrative contamination from retrieved plots}—the generator would borrow character names or story events from retrieved references. To prevent this, the prompt explicitly instructs the generator to use references for \textit{stylistic and tonal guidance only}, not narrative content.
+Early experiments showed that retrieval significantly improved stylistic diversity compared to zero-shot generation, but also introduced risks of \textit{narrative contamination from retrieved plots}---the generator would borrow character names or story events from retrieved references. To prevent this, the prompt explicitly instructs the generator to use references for \textit{stylistic and tonal guidance only}, not narrative content.
 
 \subsection{Generation (All Variants)}
 The generator receives the structured input and (for V2/V3) retrieved reference blocks, and produces a JSON object containing three marketing assets: a tagline, a promotional overview, and poster art direction. The prompt instructs the generator to write the overview as compelling promotional copy rather than a plot summary, and to specify concrete visual elements (subject position, lighting, palette, symbolic objects) in the art direction. We use Mistral-7B-Instruct-v0.2 with 4-bit quantization as the base generator. A post-processing step parses the raw output to extract and validate the JSON structure. Implementation details are provided in Appendix~C.
 
 \subsection{Agentic Refinement (V3)}
-V3 adds an iterative refinement loop after generation. The output is scored by GPT-4o on five dimensions (Section~5.2). If any dimension scores below~3, the judge identifies the weakest dimension and provides a reason; this feedback is appended to the prompt, and the generator produces a new output. The loop runs for at most 3~iterations, with early stopping when all dimensions pass. The judge model (GPT-4o) is separate from the generator (Mistral-7B)—the rationale for this separation is discussed in Section~2.
+V3 adds an iterative refinement loop after generation. The output is scored by GPT-4o on five dimensions (Section~5.2). If any dimension scores below~3, the judge identifies the weakest dimension and provides a reason; this feedback is appended to the prompt, and the generator produces a new output. The loop runs for at most 3~iterations, with early stopping when all dimensions pass. The judge model (GPT-4o) is separate from the generator (Mistral-7B)---the rationale for this separation is discussed in Section~2.
 
 % ══════════════════════════════════════════════════════════════
 \section{Experiments and Evaluation}
 
 \subsection{Evaluation Overview}
-
-% ── FOR TEAM: This subsection explains what we did, in what order, and why.
-% ── The sequence follows our actual research process, not a textbook layout.
 
 Marketing assets are creative artifacts with no single correct answer. Our evaluation must assess whether outputs are \textit{well-crafted}---anchored to the premise, tonally appropriate, visually specific, and creatively distinctive---without comparing to a gold standard.
 
@@ -224,17 +208,17 @@ Our evaluation developed iteratively through the following steps:
 \item \textbf{Generator comparison} (Section~5.4): To determine whether the problem was the RAG approach or the base model, we ran the same three ideas through two additional generators. This suggested that Mistral-7B may lack the capacity to leverage retrieved context.
 \item \textbf{Scaled evaluation data} (Section~5.5): Since $n{=}3$ cannot support statistical claims, we generated 200 synthetic evaluation inputs from TMDB metadata, filtered to 181, and split into validation ($n{=}145$) and test ($n{=}36$) sets.
 \item \textbf{Hyperparameter tuning} (Section~5.6): Grid search on the validation set identified the best retrieval and generation configuration.
-\item \textbf{Test set evaluation} (Section~5.7): V1/V2/V3 were evaluated on the held-out test set with the best configuration. V2 showed a small overall advantage, with the clearest gain in visual specificity.
-\item \textbf{Ceiling effect analysis} (Section~5.8): Examining the test set results revealed that 3 of 5 rubric dimensions score near ceiling for all variants, limiting discriminative power.
+\item \textbf{Test set evaluation} (Section~5.7): V1/V2/V3 were evaluated on the held-out test set with the best configuration. V1 showed the highest overall score, with no statistically significant pairwise differences.
+\item \textbf{Ceiling effect analysis} (Section~5.8): Examining the test set results revealed that 4 of 5 rubric dimensions score near ceiling for all variants, limiting discriminative power.
 \end{enumerate}
 
-\textcolor{red}{Four additional analyses are planned:
+Following these steps, we conducted four additional analyses:
 \begin{itemize}[nosep,leftmargin=*]
-\item[\textbf{A.}] Statistical significance test (Wilcoxon signed-rank) on V1 vs V2 per-record scores.
-\item[\textbf{B.}] Rubric tightening: re-judge existing outputs with stricter anchors to test the ceiling effect.
-\item[\textbf{C.}] Generator comparison on a larger sample ($n{=}20$) to strengthen the model-capacity finding.
-\item[\textbf{D.}] Prompt: add genre-aware craft guidance.
-\end{itemize}}
+\item[\textbf{A.}] Statistical significance test (Wilcoxon signed-rank) on V1 vs V2 per-record scores (Section~5.7).
+\item[\textbf{B.}] Rubric tightening: re-judged existing outputs with stricter anchors (Section~5.8).
+\item[\textbf{C.}] Generator comparison on a larger sample ($n{=}20$) (Section~5.4).
+\item[\textbf{D.}] Prompt improvement: added genre-aware craft guidance (Section~5.4).
+\end{itemize}
 
 \subsection{Evaluation Rubric}
 We defined five evaluation dimensions, each motivated by a specific failure mode observed during development:
@@ -274,14 +258,14 @@ At face value, V1 (zero-shot) performed equal to or better than V2 and V3 in all
 
 Full generated outputs and poster images for Idea~1 are provided in Appendix~A (Table~\ref{tab:idea1_outputs}).
 
-\subsection{Generator Comparison: Is RAG or the Model the Bottleneck?}
+\subsection{Generator Comparison}
 
 The case study results raised hypothesis~(a): Mistral-7B may be too small to leverage retrieved context. To test this, we ran the same three case study ideas through two additional generators (Gemini~2.5~Flash and GPT-4o-mini) and compared the RAG delta (V2 score minus V1 score) across all three models (Table~\ref{tab:generator}).
 
 \begin{table}[h]
 \centering
 \small
-\caption{RAG effect by generator. avg\_delta = mean(V2$-$V1) across 3 case study ideas. Evaluator: GPT-4o (fixed). $n{=}3$; interpret as directional evidence.}
+\caption{RAG effect by generator. avg\_delta = mean(V2$-$V1). Evaluator: GPT-4o (fixed).}
 \label{tab:generator}
 \begin{tabular}{llccc}
 \toprule
@@ -297,9 +281,9 @@ GPT-4o-mini & 20 & 4.74 & 4.68 & $-0.06$ \\
 \end{tabular}
 \end{table}
 
-\textcolor{red}{Initial results on $n{=}3$ ideas suggested that Gemini~2.5~Flash benefited from RAG ($+0.20$) while Mistral-7B did not ($-0.33$), consistent with hypothesis~(a). However, extending the comparison to a larger validation sample ($n{=}20$) reversed this finding: GPT-4o-mini scored V1$=$4.74, V2$=$4.68 ($\delta{=}-0.06$) and Gemini~2.5~Flash scored V1$=$4.70, V2$=$4.66 ($\delta{=}-0.04$). Neither generator showed a positive RAG delta at $n{=}20$.}
+Initial results on $n{=}3$ ideas suggested that Gemini~2.5~Flash benefited from RAG ($+0.20$) while Mistral-7B did not ($-0.33$), consistent with hypothesis~(a). However, extending the comparison to a larger validation sample ($n{=}20$) reversed this finding: GPT-4o-mini scored V1$=$4.74, V2$=$4.68 ($\delta{=}-0.06$) and Gemini~2.5~Flash scored V1$=$4.70, V2$=$4.66 ($\delta{=}-0.04$). Neither generator showed a positive RAG delta at $n{=}20$.
 
-\textcolor{red}{The initial Gemini result at $n{=}3$ therefore appears to have been noise rather than a reliable signal. Across all three generators and both sample sizes, no variant consistently benefits from retrieved context. This suggests that the bottleneck is not model capacity alone. The RAG approach as implemented does not reliably improve over zero-shot generation for this task regardless of generator size.}
+The initial Gemini result at $n{=}3$ therefore appears to have been noise rather than a reliable signal. Across all three generators and both sample sizes, no variant consistently benefits from retrieved context. This suggests that the bottleneck is not model capacity alone. The RAG approach as implemented does not reliably improve over zero-shot generation for this task regardless of generator size.
 
 \subsection{Evaluation Data: Scaled QA Pairs}
 
@@ -333,21 +317,19 @@ V3 & 4.73 & 5.00 & 5.00 & 5.00 & 3.67 & 5.00 \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:testset} reports results on the held-out test set using the best hyperparameter configuration. All three variants use Mistral-7B as generator.
+V1 achieves the highest overall score (4.79), with V2 (4.74) and V3 (4.73) performing comparably. No pairwise difference is statistically significant (V1 vs V2: Wilcoxon $p{=}0.06$, $n{=}36$). Four of five rubric dimensions score at or near ceiling across all variants, with creative specificity as the only clearly discriminating dimension (V1$=$3.97, V2$=$3.78, V3$=$3.67). The consistent ordering V1 $>$ V2 $>$ V3 on creative specificity suggests that retrieved references and judge feedback do not improve distinctive phrasing with Mistral-7B and may slightly hurt it by introducing noise.
 
-\textcolor{red}{V1 achieves the highest overall score (4.79), with V2 (4.74) and V3 (4.73) performing comparably. No pairwise difference is statistically significant (V1 vs V2: Wilcoxon p=0.06, n=36). Four of five rubric dimensions score at or near ceiling across all variants, with creative specificity as the only clearly discriminating dimension (V1=3.97, V2=3.78, V3=3.67). The consistent ordering V1 $>$ V2 $>$ V3 on creative specificity suggests that retrieved references and judge feedback do not improve distinctive phrasing with Mistral-7B and may slightly hurt it by introducing noise.}
-
-\textcolor{red}{These results are consistent with the generator comparison in Section 5.4: Mistral-7B appears to be a weak RAG consumer, unable to effectively leverage retrieved context. V3 similarly fails to outperform V1 if the model cannot utilize retrieved text in the prompt, natural-language judge feedback places even greater demands on instruction-following ability.}
+These results are consistent with the generator comparison in Section~5.4: across all generators tested, no variant consistently benefits from retrieved context. V3 similarly fails to outperform V1---if the model cannot effectively utilize retrieved text in the prompt, natural-language judge feedback places even greater demands on instruction-following ability.
 
 \subsection{Ceiling Effect Analysis}
 
-Three of five rubric dimensions score near ceiling across all variants: narrative fidelity (V1:~5.00, V2:~5.00, V3:~5.00), genre alignment (4.94--5.00), and format validity (5.00).
+Four of five rubric dimensions score near ceiling across all variants: narrative fidelity (5.00), genre alignment (4.94--5.00), visual specificity (5.00), and format validity (5.00).
 
 This is both a positive and a negative observation. On one hand, it confirms that all variants produce outputs faithful to the premise, tonally appropriate, and correctly formatted---the structured input design (Section~4.1) effectively prevents narrative contamination. On the other hand, near-ceiling scores provide no discriminative power between variants. The overall score differences are driven entirely by creative specificity, giving this dimension an outsized influence on the aggregate.
 
-The tagline example from Section~5.3, where three qualitatively different outputs received identical scores (4.20), provides concrete evidence that the current rubric under-discriminates. 
+The tagline example from Section~5.3, where three qualitatively different outputs received identical scores (4.20), provides concrete evidence that the current rubric under-discriminates.
 
-\textcolor{red}{Re-judging 20 records with tightened rubric anchors produced two findings. First, genre alignment scores dropped from 5.00 to 4.75--4.95 across all variants, confirming that the original ceiling on this dimension was partly a rubric sensitivity issue rather than a genuine model ceiling. Second, creative specificity remained the lowest-scoring dimension across all variants (3.15--3.45) regardless of rubric version, suggesting this reflects a genuine model capability limitation rather than an evaluation artifact. Mistral-7B consistently produces competent but generic taglines whether given retrieved references (V2) or judge feedback (V3). This distinction is methodologically important: some ceiling effects are fixable through rubric design, while others reflect the underlying generator's capacity..}
+Re-judging 20 records with tightened rubric anchors produced two findings. First, genre alignment scores dropped from 5.00 to 4.75--4.95 across all variants, confirming that the original ceiling on this dimension was partly a rubric sensitivity issue rather than a genuine model ceiling. Second, creative specificity remained the lowest-scoring dimension across all variants (3.15--3.45) regardless of rubric version, suggesting this reflects a genuine model capability limitation rather than an evaluation artifact. Mistral-7B consistently produces competent but generic taglines whether given retrieved references (V2) or judge feedback (V3). This distinction is methodologically important: some ceiling effects are fixable through rubric design, while others reflect the underlying generator's capacity.
 
 
 % ══════════════════════════════════════════════════════════════
@@ -357,24 +339,25 @@ Our experiments produced a consistent pattern: across all three generators teste
 
 
 \textbf{RAG effectiveness is task- and implementation-dependent.}
-\textcolor{blue}{The generator comparison (Section~5.4) initially suggested that model capacity was the binding constraint: Gemini~2.5~Flash showed a positive RAG delta ($+0.20$) at $n{=}3$ while Mistral-7B did not ($-0.33$). However, extending the comparison to $n{=}20$ reversed this finding: neither Gemini~2.5~Flash ($\delta{=}-0.04$) nor GPT-4o-mini ($\delta{=}-0.06$) benefited from RAG at larger sample sizes. The initial Gemini result appears to have been noise. Across all three generators and both sample sizes, no variant consistently benefits from retrieved context. This suggests that the bottleneck is not model capacity alone; the RAG approach as implemented does not reliably improve over zero-shot generation for this creative task regardless of generator size. One possible explanation is that retrieved references introduce stylistic noise rather than useful signal: the generator may be distracted by thematically similar but stylistically mismatched content, producing less distinctive outputs than zero-shot generation.}
+The generator comparison (Section~5.4) initially suggested that model capacity was the binding constraint: Gemini~2.5~Flash showed a positive RAG delta ($+0.20$) at $n{=}3$ while Mistral-7B did not ($-0.33$). However, extending the comparison to $n{=}20$ reversed this finding: neither Gemini~2.5~Flash ($\delta{=}-0.04$) nor GPT-4o-mini ($\delta{=}-0.06$) benefited from RAG at larger sample sizes. The initial Gemini result appears to have been noise. Across all three generators and both sample sizes, no variant consistently benefits from retrieved context. This suggests that the bottleneck is not model capacity alone; the RAG approach as implemented does not reliably improve over zero-shot generation for this creative task regardless of generator size. One possible explanation is that retrieved references introduce stylistic noise rather than useful signal: the generator may be distracted by thematically similar but stylistically mismatched content, producing less distinctive outputs than zero-shot generation.
 
 \textbf{Evaluation sensitivity and the ceiling effect.}
-\textcolor{blue}{Four of five rubric dimensions score at or near ceiling for all variants, eliminating their discriminative value (Section~5.8). Creative specificity is the only clearly discriminating dimension (V1=3.97, V2=3.78, V3=3.67), and the consistent ordering V1 $>$ V2 $>$ V3 on this dimension suggests that retrieved references and judge feedback may slightly hurt distinctive phrasing by introducing noise. 
+Four of five rubric dimensions score at or near ceiling for all variants, eliminating their discriminative value (Section~5.8). Creative specificity is the only clearly discriminating dimension (V1$=$3.97, V2$=$3.78, V3$=$3.67), and the consistent ordering V1 $>$ V2 $>$ V3 on this dimension suggests that retrieved references and judge feedback may slightly hurt distinctive phrasing by introducing noise.
 
-Re-judging with tightened rubric anchors confirmed that some ceiling effects are fixable through rubric design (genre alignment dropped from 5.00 to 4.75--4.95), while others reflect genuine model limitations (creative specificity remained low regardless of rubric version). A Wilcoxon signed-rank test on per-record scores yielded $p{=}0.06$, confirming that no pairwise difference between variants reaches statistical significance at $n{=}36$.}
+Re-judging with tightened rubric anchors confirmed that some ceiling effects are fixable through rubric design (genre alignment dropped from 5.00 to 4.75--4.95), while others reflect genuine model limitations (creative specificity remained low regardless of rubric version). A Wilcoxon signed-rank test on per-record scores yielded $p{=}0.06$, confirming that no pairwise difference between variants reaches statistical significance at $n{=}36$.
 
 \textbf{Evaluation methodology: trade-offs and biases.}
-{GPT-4o serves as both the QA input generator (Section~5.5) and the judge (Section~5.2), creating a potential circularity: the judge may favor input phrasings consistent with its own generation tendencies. Additionally, the test set is small ($n{=}36$), a consequence of the synthesis-filtering-splitting pipeline (200~$\to$~181~$\to$~36). This limits the statistical power of inter-variant comparisons and means small observed differences should be interpreted with caution.}
+GPT-4o serves as both the QA input generator (Section~5.5) and the judge (Section~5.2), creating a potential circularity: the judge may favor input phrasings consistent with its own generation tendencies. Additionally, the test set is small ($n{=}36$), a consequence of the synthesis-filtering-splitting pipeline (200~$\to$~181~$\to$~36). This limits the statistical power of inter-variant comparisons and means small observed differences should be interpreted with caution.
 
 \textbf{Practical trade-offs.}
-{V1 is simplest (\textasciitilde5s, no API cost). V2 adds \textasciitilde2s of local retrieval with no runtime API cost (FAISS search over pre-embedded corpus, pre-computed captions). V3 adds 20--90s of latency and \textasciitilde\$0.02/run for GPT-4o judge calls, with no measurable quality gain in the current configuration. With Mistral-7B as generator, V3's cost-benefit ratio is negative. Given that V1 performs comparably to or better than V2 and V3 across all experiments, the zero-shot baseline represents the best, practical choice under thecurrent conditions.}
+V1 is simplest (\textasciitilde5s, no API cost). V2 adds \textasciitilde2s of local retrieval with no runtime API cost (FAISS search over pre-embedded corpus, pre-computed captions). V3 adds 20--90s of latency and \textasciitilde\$0.02/run for GPT-4o judge calls, with no measurable quality gain in the current configuration. With Mistral-7B as generator, V3's cost-benefit ratio is negative. Given that V1 performs comparably to or better than V2 and V3 across all experiments, the zero-shot baseline represents the best practical choice under the current conditions.
+
 % ══════════════════════════════════════════════════════════════
 \section{Conclusions and Future Work}
 
 We presented a RAG-augmented system for generating film marketing assets, comparing zero-shot (V1), retrieval-augmented with visual grounding (V2), and agentic refinement (V3) variants. Our findings center on two themes:
 
-\textcolor{blue}{\textbf{RAG does not reliably improve over zero-shot for this creative task.} Across all three generators tested (Mistral-7B, Gemini~2.5~Flash, GPT-4o-mini) and both $n{=}3$ and $n{=}20$ sample sizes, no variant consistently benefits from retrieved context. V1 performs comparably to or better than V2 and V3 in all conditions, with no statistically significant pairwise differences (Wilcoxon $p{=}0.06$). One possible explanation is that retrieved references introduce stylistic noise rather than useful signal, producing less distinctive outputs than zero-shot generation. V3's agentic refinement loop does not improve over V1, consistent with this interpretation.}
+\textbf{RAG does not reliably improve over zero-shot for this creative task.} Across all three generators tested (Mistral-7B, Gemini~2.5~Flash, GPT-4o-mini) and both $n{=}3$ and $n{=}20$ sample sizes, no variant consistently benefits from retrieved context. V1 performs comparably to or better than V2 and V3 in all conditions, with no statistically significant pairwise differences (Wilcoxon $p{=}0.06$). One possible explanation is that retrieved references introduce stylistic noise rather than useful signal, producing less distinctive outputs than zero-shot generation. V3's agentic refinement loop does not improve over V1, consistent with this interpretation.
 
 \textbf{Evaluating creative outputs without ground truth requires careful methodology.} Our rubric exhibits ceiling effects in four of five dimensions, limiting discriminative power. Creative specificity is the only clearly discriminating dimension, and rubric tightening confirmed that some ceiling effects are fixable through rubric design while others reflect genuine generator limitations. Rubric design, not just system design, determines what quality differences can be detected.
 
@@ -383,7 +366,7 @@ We presented a RAG-augmented system for generating film marketing assets, compar
 \textbf{Future work}, ordered by expected impact:
 \begin{enumerate}[nosep,leftmargin=*]
 \item Test with a stronger local generator to confirm the model-capacity hypothesis---this is the most impactful open question.
-\item Tighten rubric anchors to increase discriminative power---the most immediately executable improvement.
+\item Further tighten rubric anchors---initial tightening resolved some ceiling effects (Section~5.8) but creative specificity remained resistant.
 \item Conduct human evaluation (blind A/B/C) to validate LLM-as-Judge reliability.
 \item Add prompt-level improvements (genre-aware craft guidance, pattern abstraction from retrieved references) to better exploit retrieved context.
 \end{enumerate}
@@ -443,7 +426,6 @@ Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena.
 \section*{Appendix}
 
 \subsection*{A. Case Study: Idea 1 Full Outputs}
-
 
 \begin{table}[H]
 \centering
@@ -570,6 +552,5 @@ STRICT RULES:
 
 Now output the JSON:
 \end{verbatim}
-
 
 \end{document}
