@@ -1,0 +1,451 @@
+% INFO 290 — Group 5 Final Report (DRAFT v5 — compressed for 5-page limit)
+% Two-column format. Upload to Overleaf directly.
+% Search \TODO and \VERIFY for all pending team action items.
+\documentclass[10pt,twocolumn]{article}
+
+\usepackage[margin=0.75in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{natbib}
+\usepackage{titlesec}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{array}
+
+% Spacing for 5-page limit
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{1em}
+\setlength{\columnsep}{0.25in}
+\titlespacing*{\section}{0pt}{8pt}{3pt}
+\titlespacing*{\subsection}{0pt}{6pt}{2pt}
+\titlespacing*{\subsubsection}{0pt}{4pt}{2pt}
+
+% % Draft markers
+% \newcommand{\TODO}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+% \newcommand{\VERIFY}[1]{\textcolor{red}{\textbf{[VERIFY: #1]}}}
+
+\title{\Large Utilization of RAG and Agentic AI\\for Marketing Asset Generation}
+\author{
+  Ryuichi Ikeda, Priya Charagondla, Shivani Parikh, Nseke Ngilbus, Lena Ehrenreich \\
+  University of California, Berkeley \\
+  Berkeley, CA 94720, USA \\
+  \texttt{\{i.ryuichi,priya.charagondla,neomishivani,nngilbus,lena.ehrenreich\}@berkeley.edu}
+}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ══════════════════════════════════════════════════════════════
+\begin{abstract}
+We present a system that generates professional marketing assets for films---taglines, promotional overviews, and poster art direction---by retrieving thematically similar films from a corpus of 4,312 TMDB movies and injecting their metadata and poster visual descriptions into the generation prompt. We compare three system variants: a zero-shot baseline~(V1), retrieval-augmented generation with visual grounding via pre-computed poster captions~(V2), and V2 extended with an iterative refinement loop using a separate LLM-as-Judge~(V3). Outputs are evaluated on five dimensions by GPT-4o, using a rubric designed around failure modes observed during development. Our investigation yields two central findings. First, across all three generators tested (Mistral-7B, Gemini~2.5~Flash, GPT-4o-mini) and both $n{=}3$ and $n{=}20$ sample sizes, no variant consistently benefits from retrieved context: V1 performs comparably to or better than V2 and V3, with no statistically significant pairwise differences. Second, automated evaluation of creative outputs poses unique methodological challenges: four of five rubric dimensions score at or near ceiling, leaving creative specificity as the only clearly discriminating dimension. Rubric tightening partially resolves ceiling effects but confirms that low creative specificity reflects a genuine generator limitation rather than a measurement artifact.
+\end{abstract}
+
+% ══════════════════════════════════════════════════════════════
+\section{Introduction}
+
+Film marketing assets---taglines, promotional synopses, and poster art direction---are produced through iterative collaboration between creative teams, market analysts, and studio executives. This process is slow, expensive, and relies on tacit knowledge of genre conventions that is difficult to codify. While LLMs can generate creative text, their zero-shot outputs typically lack two properties that professional marketing demands: \textit{strategic grounding} in proven industry patterns, and \textit{genre-specific visual vocabulary} for art direction.
+
+We address this gap by building a system that takes a \textit{structured movie concept} (premise, thematic core, and constraints) and uses \textit{retrieval-augmented generation with visual grounding} to produce a tagline, a promotional overview, and poster art direction. Our approach is guided by two hypotheses: (i)~grounding generation in historical patterns from thematically similar films---including visual descriptions of their poster art---will improve output quality beyond zero-shot generation; (ii)~iterative refinement via an LLM-as-Judge feedback loop can further improve quality by identifying and correcting specific weaknesses. Figure~\ref{fig:journey} illustrates the end-to-end user journey. Section~2 reviews related work; Section~3 describes data sources; Section~4 presents the architecture and variants; Section~5 details experiments; Sections~6 and~7 discuss findings and conclude.
+
+% --- FIGURE 1 PLACEHOLDER ---
+\begin{figure}[t]
+\centering
+\fbox{\begin{minipage}{0.9\columnwidth}
+\centering
+\vspace{2cm}
+\textcolor{gray}{\textbf{End-to-End User Journey}\\[4pt]
+\small Insert \texttt{figure1\_user\_journey.svg}\\
+User $\to$ Input $\to$ [Retrieval $\to$] Generation [$\to$ Refinement] $\to$ Output.}
+\vspace{2cm}
+\end{minipage}}
+\caption{End-to-end user journey. A creative professional provides a structured movie concept. The system generates marketing assets, optionally using retrieval (V2/V3) and judge feedback (V3).}
+\label{fig:journey}
+\end{figure}
+
+% ══════════════════════════════════════════════════════════════
+\section{Related Work}
+
+\citet{sun2025ai} compare LLM-generated and human-written marketing slogans, finding comparable consumer engagement but noting that LLM outputs tend toward structural homogeneity and lack market-specific nuance. This identifies a core limitation our work addresses: without external grounding, LLMs produce generic creative text lacking the genre-specific conventions professionals rely on. Our RAG pipeline provides this grounding by retrieving stylistic patterns from historically successful films, and our structured input format with negative constraints gives the generator explicit boundaries to combat homogeneity.
+
+Self-Refine \citep{madaan2023selfrefine} demonstrates that LLMs can iteratively improve their own outputs through self-generated feedback, with diminishing returns beyond 2--3 iterations. Our V3 variant adopts this judge-then-refine architecture, but with a key modification: we separate the judge model (GPT-4o) from the generator (Mistral-7B). Same-model evaluation has been shown to inflate scores \citep{zheng2023judging}; this risk is amplified in creative tasks, where quality is subjective and self-evaluation may confirm the generator's own stylistic tendencies.
+
+% ══════════════════════════════════════════════════════════════
+\section{Data Sources and Inputs}
+
+\subsection{TMDB Movie Corpus}
+We collected metadata for 4,816 movies from the TMDB (The Movie Database) API, including title, tagline, overview, genre IDs, and audience metrics. After removing 504 records (10.5\%) with missing taglines, the working corpus contains \textbf{4,312 movies}. The genre distribution is broad but skewed toward Drama~(1,845) and Action~(1,414), followed by Thriller~(1,366), Comedy~(1,221), and Horror~(709). Our experimental case studies were selected from the most represented genres to ensure adequate retrieval coverage. A representative record (\textit{Take Shelter}, 2011) includes the tagline \textit{``Is it real or just a dream?''} and a short overview describing apocalyptic dreams and possible mental illness; each record contains textual metadata used for retrieval embedding and a poster image used for visual caption generation.
+
+\subsection{Visual Grounding via Poster Captions}
+Early experiments revealed that without visual references, generated poster art direction was generic and lacked compositional detail---e.g., outputs like ``dark and moody poster'' that no designer could act on. To address this, we pre-computed structured visual descriptions for all 4,312 movie posters. We evaluated three vision-language models across four configurations (Figure~\ref{fig:vlm}) before selecting Gemini~2.5~Flash, which produces structured prose across six visual axes: composition, lighting, color palette, mood, typography, and symbolic elements. Captions were pre-computed via the Gemini API prior to any experiments and stored as an additional column in the retrieval corpus, requiring no API calls at inference time.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.30\columnwidth]{figures/shelter.png}
+
+\vspace{0.4em}
+\scriptsize
+\begin{tabular}{p{1.5cm}p{1.0cm}p{3.4cm}}
+\toprule
+\textbf{Model} & \textbf{Verdict} & \textbf{Example Output} \\
+\midrule
+vit-gpt2 & Rejected & ``man standing in front of large group of birds'' \\
+BLIP-2 (zero-shot) & Rejected & ``the poster is dark and moody'' \\
+BLIP-2 (Q\&A) & Marginal & ``a man and woman in front of a stormy sky'' \\
+\textbf{Gemini 2.5 Flash} & \textbf{Adopted} & ``A man with a concerned upward gaze\ldots two funnel clouds on the horizon\ldots'' \\
+\bottomrule
+\end{tabular}
+\caption{VLM captioning comparison on the \textit{Take Shelter} (2011) poster (above). Gemini~2.5~Flash was selected for descriptive richness and accuracy.}
+\label{fig:vlm}
+\end{figure}
+
+% ══════════════════════════════════════════════════════════════
+\section{System Architecture and Variants}
+
+% --- FIGURE 2 PLACEHOLDER ---
+\begin{figure}[t]
+\centering
+\fbox{\begin{minipage}{0.9\columnwidth}
+\centering
+\vspace{2cm}
+\textcolor{gray}{\textbf{System Architecture}\\[4pt]
+\small Insert \texttt{figure2\_system\_architecture.svg}\\
+V1 / V2 / V3 comparison.}
+\vspace{2cm}
+\end{minipage}}
+\caption{System architecture. V1 generates from input alone. V2 adds retrieved references and poster captions. V3 extends V2 with an iterative judge-feedback loop.}
+\label{fig:architecture}
+\end{figure}
+
+We implemented three system variants (Figure~\ref{fig:architecture}, Table~\ref{tab:variants}) that share a common output format---a JSON object with tagline, overview, and poster art direction---and differ in how the generation prompt is constructed.
+
+\begin{table}[h]
+\centering
+\small
+\caption{System variant components.}
+\label{tab:variants}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Variant} & \textbf{Input} & \textbf{Retrieval} & \textbf{Gen.} & \textbf{Refine} \\
+\midrule
+V1 (Zero-Shot) & \checkmark & — & \checkmark & — \\
+V2 (RAG+Visual) & \checkmark & \checkmark & \checkmark & — \\
+V3 (Agentic) & \checkmark & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Input design (all variants).} Early experiments with free-text prompts produced \textit{narrative contamination}: the generator invented characters, villains, and plot events not specified by the user (e.g., fabricating a disappearance subplot for a premise about a flooded clinic). We replaced free-text input with a three-field structured format: \texttt{core\_premise} (what happens), \texttt{thematic\_core} (the central tension), and \texttt{negative\_constraints} (what the generator must \textit{not} do). With this structure, the generator no longer invents plot elements excluded by user constraints.
+
+\textbf{Retrieval (V2, V3).} Each movie in the corpus is represented by concatenating its title, tagline, and overview, embedding with Sentence-BERT (all-MiniLM-L6-v2, 384~dim), and indexing in FAISS. At query time, the user's premise is embedded and matched against the index, returning the top-$k$ films ($k$ tuned in \S\ref{sec:tuning}). For each retrieved film, a reference block contains its tagline, overview, and pre-computed poster caption. Early experiments showed that retrieval improved stylistic diversity but also introduced \textit{narrative contamination from retrieved plots}---the generator borrowed character names or story events from references. To prevent this, the prompt explicitly instructs the generator to use references for \textit{stylistic and tonal guidance only}.
+
+\textbf{Generation (all variants).} The generator receives the structured input and (for V2/V3) retrieved reference blocks, producing a JSON object with three marketing assets. The prompt instructs the generator to write the overview as compelling promotional copy rather than a plot summary, and to specify concrete visual elements (subject position, lighting, palette, symbolic objects) in the art direction. We use Mistral-7B-Instruct-v0.2 with 4-bit quantization as the base generator. A post-processing step parses and validates the JSON. Implementation details are in Appendix~C.
+
+\textbf{Agentic refinement (V3).} V3 adds an iterative refinement loop. The output is scored by GPT-4o on five dimensions (\S\ref{sec:rubric}). If any dimension scores below~3, the judge identifies the weakest dimension and provides a reason; this feedback is appended to the prompt, and the generator produces a new output. The loop runs for at most 3~iterations, with early stopping when all dimensions pass. The judge (GPT-4o) is separate from the generator (Mistral-7B) to avoid self-evaluation bias \citep{zheng2023judging}.
+
+% ══════════════════════════════════════════════════════════════
+\section{Experiments and Evaluation}
+
+\subsection{Evaluation Overview}
+
+Marketing assets are creative artifacts with no single correct answer. Our evaluation must assess whether outputs are \textit{well-crafted}---anchored to the premise, tonally appropriate, visually specific, and creatively distinctive---without comparing to a gold standard. Our evaluation proceeded through rubric design (\S\ref{sec:rubric}), a three-idea case study (\S\ref{sec:casestudy}), generator comparison across three models (\S\ref{sec:generator}), scaled QA-pair generation for statistical evaluation (\S\ref{sec:scaled}), hyperparameter tuning (\S\ref{sec:tuning}), held-out test set evaluation (\S\ref{sec:test}), and ceiling effect analysis (\S\ref{sec:ceiling}).
+
+\subsection{Evaluation Rubric}
+\label{sec:rubric}
+We defined five evaluation dimensions, each motivated by a specific failure mode observed during development: (1)~\textbf{Narrative fidelity} (motivated by narrative contamination); (2)~\textbf{Genre alignment} (motivated by tone drift); (3)~\textbf{Visual specificity}---concrete, actionable visual elements such as subject position, lighting, palette, symbolic objects (motivated by generic ``dark and moody'' outputs); (4)~\textbf{Creative specificity}---distinctive, non-interchangeable phrasing in the tagline (motivated by the homogeneity problem in \citealp{sun2025ai}); (5)~\textbf{Output format validity}---all JSON fields present and within word limits. Each dimension is scored 1--5 by GPT-4o, with rubric anchors at scores~1, 3, and~5 (full rubric in Appendix~B). The judge is deliberately different from the generator to prevent self-evaluation bias \citep{zheng2023judging}.
+
+\subsection{Case Study ($n{=}3$)}
+\label{sec:casestudy}
+We began evaluation with three hand-crafted concepts: a Psychological Thriller, a Drama about family and loss, and an Action Thriller. Each was defined with the structured input format and run through all three variants once. These case studies served two purposes: identifying failure modes that informed the rubric, and providing qualitative illustrations of inter-variant differences.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Case study results ($n{=}3$, Mistral-7B). LLM-as-Judge average scores.}
+\label{tab:casestudy}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Idea} & \textbf{V1} & \textbf{V2} & \textbf{V3} \\
+\midrule
+Idea 1 --- Psych.\ Thriller & 4.20 & 4.20 & 4.20 \\
+Idea 2 --- Drama & 4.60 & 4.20 & 4.20 \\
+Idea 3 --- Action Thriller & 4.60 & 4.20 & 3.80 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+V1 (zero-shot) performed equal to or better than V2 and V3 in all three cases---unexpected, given that RAG should provide useful grounding. This raised two hypotheses: (a)~the base model (Mistral-7B) may lack the capacity to leverage retrieved context, or (b)~the rubric may not be sensitive enough to detect quality differences. \S\ref{sec:generator} and \S\ref{sec:ceiling} investigate these respectively. Full outputs and posters for Idea~1 are in Appendix~A.
+
+\subsection{Generator Comparison}
+\label{sec:generator}
+To test hypothesis~(a), we ran the same three ideas through two additional generators (Gemini~2.5~Flash, GPT-4o-mini) and compared the RAG delta (V2$-$V1) across all three models, then extended to a larger validation sample ($n{=}20$).
+
+\begin{table}[h]
+\centering
+\small
+\caption{RAG effect by generator. avg\_$\delta$ = mean(V2$-$V1). Evaluator: GPT-4o (fixed).}
+\label{tab:generator}
+\begin{tabular}{llccc}
+\toprule
+\textbf{Generator} & \textbf{n} & \textbf{V1 avg} & \textbf{V2 avg} & \textbf{avg $\delta$} \\
+\midrule
+Mistral-7B & 3 & 3.80 & 3.47 & $-0.33$ \\
+Gemini~2.5~Flash & 3 & 4.73 & 4.93 & $+0.20$ \\
+GPT-4o-mini & 3 & 4.20 & 4.20 & $0.00$ \\
+\midrule
+Gemini~2.5~Flash & 20 & 4.70 & 4.66 & $-0.04$ \\
+GPT-4o-mini & 20 & 4.74 & 4.68 & $-0.06$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At $n{=}3$, Gemini~2.5~Flash appeared to benefit from RAG ($+0.20$) while Mistral-7B did not ($-0.33$), consistent with hypothesis~(a). However, at $n{=}20$ the effect disappeared for both API models ($\delta{=}-0.04$ and $-0.06$), indicating the initial Gemini result was noise. Across all three generators and both sample sizes, no variant consistently benefits from retrieved context---the bottleneck is not model capacity alone.
+
+\subsection{Evaluation Data: Scaled QA Pairs}
+\label{sec:scaled}
+To enable statistical claims, we used GPT-4o to \textit{reverse-generate} structured movie inputs from TMDB metadata: given a real film's title, genre, and overview, generate the structured input (\texttt{core\_premise}, \texttt{thematic\_core}, \texttt{negative\_constraints}) that would produce it. This yielded 200 synthetic inputs. A Mistral-7B quality critic then reviewed each for internal coherence, retaining 181 validated pairs (19 rejected). These were split by stratified sampling on primary genre into validation ($n{=}145$) and held-out test ($n{=}36$) sets. All tuning was conducted on the validation set; the test set was evaluated once with the final configuration.
+
+\subsection{Hyperparameter Tuning}
+\label{sec:tuning}
+We performed a grid search on the validation set over retrieval count $k \in \{3,5,7\}$, genre filtering $\in \{\text{True, False}\}$, and temperature $\in \{0.4, 0.6, 0.8\}$, yielding 18~configurations evaluated on a random sample of 20~validation records each. The best configuration was $k{=}3$, genre\_filter=False, temperature=0.6 (avg score = 4.50). Notably, genre filtering \textit{reduced} performance, likely because restricting retrieval to same-genre films narrows stylistic diversity.
+
+\subsection{Test Set Evaluation ($n{=}36$)}
+\label{sec:test}
+Table~\ref{tab:testset} reports results on the held-out test set with the best configuration. All variants use Mistral-7B.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Test set evaluation ($n{=}36$, $k{=}3$, genre\_filter=False, temp=0.6).}
+\label{tab:testset}
+\begin{tabular}{lcccccc}
+\toprule
+ & \textbf{Avg} & \textbf{Narr.} & \textbf{Genre} & \textbf{Vis.} & \textbf{Cre.} & \textbf{Fmt.} \\
+\midrule
+V1 & \textbf{4.79} & 5.00 & 5.00 & 5.00 & \textbf{3.97} & 5.00 \\
+V2 & 4.74 & 5.00 & 4.94 & 5.00 & 3.78 & 5.00 \\
+V3 & 4.73 & 5.00 & 5.00 & 5.00 & 3.67 & 5.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+V1 achieves the highest overall score (4.79); V2 (4.74) and V3 (4.73) perform comparably. No pairwise difference is statistically significant (V1 vs V2: Wilcoxon signed-rank $p{=}0.06$). Four of five dimensions score at or near ceiling, with creative specificity as the only clearly discriminating dimension (V1$=$3.97, V2$=$3.78, V3$=$3.67). The consistent ordering V1~$>$~V2~$>$~V3 on this dimension suggests that retrieved references and judge feedback do not improve distinctive phrasing with Mistral-7B and may slightly hurt it. V3 fails to outperform V1 for a related reason: if the model cannot effectively utilize retrieved text, natural-language judge feedback places even greater demands on instruction-following.
+
+\subsection{Ceiling Effect Analysis}
+\label{sec:ceiling}
+Four of five rubric dimensions score near ceiling across all variants: narrative fidelity (5.00), genre alignment (4.94--5.00), visual specificity (5.00), and format validity (5.00). This is both positive---the structured input design (\S4) effectively prevents narrative contamination---and limiting: near-ceiling scores provide no discriminative power between variants, and the overall score differences are driven entirely by creative specificity. The case study (\S\ref{sec:casestudy}), where three qualitatively different outputs received identical scores (4.20), provides concrete evidence of under-discrimination.
+
+We re-judged 20 records with tightened rubric anchors. Genre alignment scores dropped from 5.00 to 4.75--4.95 across all variants, confirming that the original ceiling on this dimension was partly a rubric sensitivity issue. However, creative specificity remained the lowest-scoring dimension across all variants (3.15--3.45) regardless of rubric version, suggesting this reflects a genuine model capability limitation rather than an evaluation artifact. Some ceiling effects are fixable through rubric design; others reflect generator capacity.
+
+% ══════════════════════════════════════════════════════════════
+\section{Discussion}
+
+\textbf{Largest impact.} The structured input format (Section~4)---not retrieval or refinement---had the largest measurable effect, eliminating narrative contamination and pushing four of five rubric dimensions to ceiling across all variants. This high shared baseline makes inter-variant differences difficult to detect.
+
+\textbf{Most noticeable failure.} V3 degraded creative specificity relative to V1 (3.67 vs.\ 3.97). The refinement loop requires parsing natural-language feedback and selectively revising output---a meta-cognitive demand that Mistral-7B cannot reliably satisfy, causing regression toward generic phrasing.
+
+\textbf{Systematic issues.} Four of five rubric dimensions hit ceiling, concentrating all discriminative signal into creative specificity. Re-judging with tightened anchors confirmed some ceilings are rubric artifacts (genre alignment: 5.00 $\to$ 4.75--4.95) while others reflect genuine generator limitations (creative specificity: 3.15--3.45 regardless of rubric). GPT-4o's dual role as QA generator and judge creates potential evaluation circularity.
+
+\textbf{Trade-offs.} V1 is simplest (\textasciitilde5s, no API cost); V2 adds \textasciitilde2s retrieval; V3 adds 20--90s and \textasciitilde\$0.02/run. None improves over V1, making the zero-shot baseline the best practical choice.
+
+\textbf{Robustness.} V1's independence from retrieval means it has no failure mode tied to corpus coverage, unlike V2/V3 which could degrade on premises with no thematically similar films in TMDB. However, robustness to out-of-distribution inputs was not directly tested.
+
+\textbf{Bias and societal considerations.} Our corpus is predominantly Hollywood and English-language, and generated assets reflect these conventions. Beyond the corpus, Mistral-7B and GPT-4o carry pre-training biases we did not audit---stereotypes or cultural skews in these models propagate silently through the pipeline. Our automated evaluation cannot detect such biases; human review with diverse evaluators would be needed.
+
+% ══════════════════════════════════════════════════════════════
+\section{Conclusions and Future Work}
+
+Our key insight is twofold. \textbf{(i)~RAG does not reliably improve over zero-shot for this creative task} across three generators and two sample sizes; retrieved references appear to introduce stylistic noise rather than useful signal. \textbf{(ii)~Evaluating creative outputs without ground truth requires careful methodology}: rubric design, not just system design, determines what quality differences can be detected---four of five dimensions hit ceiling, and rubric tightening confirmed that some ceilings are measurement artifacts while others (creative specificity) reflect genuine generator limits.
+
+Key limitations: small test set ($n{=}36$), GPT-4o's dual role as input generator and judge, and ceiling effects in four of five rubric dimensions. With more time and compute, our highest-priority extensions would be (1)~testing a stronger local generator to confirm the model-capacity hypothesis; (2)~human evaluation (blind A/B/C) to validate LLM-as-Judge reliability; (3)~further rubric tightening, especially on creative specificity; and (4)~prompt-level improvements (genre-aware craft guidance, pattern abstraction from retrieved references) to better exploit retrieved context.
+
+% ══════════════════════════════════════════════════════════════
+\section*{Contributions}
+
+\begin{table}[h]
+\centering
+\small
+\caption*{Contribution breakdown. Per course requirement, each member contributes to both the System Architecture (\S4) and Experiments (\S5) sections.}
+\begin{tabularx}{\columnwidth}{l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
+\toprule
+ & \textbf{Sections Written} & \textbf{Code / Notebook} \\
+\midrule
+Ryuichi & \textcolor{red}{TBU} & \textcolor{red}{TBU} \\
+\midrule
+Priya & \textcolor{red}{TBU} & \textcolor{red}{TBU} \\
+\midrule
+Shivani & \textcolor{red}{TBU} & \textcolor{red}{TBU} \\
+\midrule
+Nseke & \textcolor{red}{TBU} & \textcolor{red}{TBU} \\
+\midrule
+Lena & \textcolor{red}{TBU} & \textcolor{red}{TBU} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\TODO{Finalize writing assignments. Ensure each member has at least one notebook where they are the primary contributor.}
+
+% ══════════════════════════════════════════════════════════════
+\bibliographystyle{plainnat}
+\begin{thebibliography}{9}
+
+\bibitem[Sun et~al.(2025)]{sun2025ai}
+Sun, L., An, Y., and Song, X. et~al. (2025).
+Human vs.\ AI in creative contests: A study on the effectiveness of advertisement copy generated by Chinese large language models.
+\textit{Electronic Commerce Research}.
+
+\bibitem[Madaan et~al.(2023)]{madaan2023selfrefine}
+Madaan, A., et~al. (2023).
+Self-Refine: Iterative Refinement with Self-Feedback.
+\textit{NeurIPS 2023}.
+
+\bibitem[Zheng et~al.(2023)]{zheng2023judging}
+Zheng, L., et~al. (2023).
+Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena.
+\textit{NeurIPS 2023}.
+
+\end{thebibliography}
+
+% ══════════════════════════════════════════════════════════════
+\clearpage
+\onecolumn
+\appendix
+
+\section*{Appendix}
+
+\subsection*{A. Case Study: Idea 1 Full Outputs}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Input concept, generated outputs, and poster images for Idea~1 (Psychological Thriller). All variants scored 4.20/5.00 overall by LLM-as-Judge, despite visible qualitative differences.}
+\label{tab:idea1_outputs}
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Input} & \textbf{Premise:} A man wakes up in a hospital with no memory of his past. People claiming to be his family and friends appear one by one---each with a different account of who he was. As fragments of memory return, he suspects someone is controlling what he remembers. \newline \textbf{Theme:} Identity is not what you remember---it is what others need you to believe. \newline \textbf{Constraints:} Do not reveal whether visitors are real or fabricated. No action sequences or physical violence. Memory recovery should feel terrifying, not heroic. \\
+\bottomrule
+\end{tabularx}
+
+\vspace{-0.5em}
+
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
+\toprule
+ & \textbf{V1 (Zero-Shot)} & \textbf{V2 (RAG+Visual)} & \textbf{V3 (Agentic)} \\
+\midrule
+\textbf{Poster} &
+\includegraphics[width=\linewidth]{figures/idea1_v1.png} &
+\includegraphics[width=\linewidth]{figures/idea1_v2.png} &
+\includegraphics[width=\linewidth]{figures/idea1_v3.png} \\
+\midrule
+\textbf{Tagline} & ``Unraveling the Threads of Identity'' & ``Unraveling Memories'' & ``Who controls your past?'' \\
+\midrule
+\textbf{Overview} & A man's shattered past resurfaces in a labyrinthine maze of memories, each more deceptive than the last. What if your past was a prison? & Lost in a labyrinth of memories, a man grapples with a shocking revelation: his past may be a twisted tapestry of lies. & A man regains consciousness in a hospital, unsure of his past. Friends and family visit, but their stories contradict one another. \\
+\midrule
+\textbf{Art Dir.} & Shattered mirror reflecting distorted memories. Endless maze of mirrors. & Expressionless figure surrounded by shattered mirrors reflecting distorted faces. & Man in hospital bed, figures crowd around, faces obscured by shadows. \\
+\midrule
+\textbf{Score} & 4.20 & 4.20 & 4.20 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\clearpage
+
+\subsection*{B. Full Evaluation Rubric}
+
+\begin{table}[h]
+\centering
+\small
+\caption*{LLM-as-Judge rubric. Scores 2 and 4 are interpolated between anchors. Judge model: GPT-4o (separate from generator).}
+\begin{tabularx}{\textwidth}{p{2.3cm}XXX}
+\toprule
+\textbf{Dimension} & \textbf{Score 5} & \textbf{Score 3} & \textbf{Score 1} \\
+\midrule
+Narrative Fidelity & No constraints violated. All content strictly anchored to premise and theme. & Minor trope drift; no invented characters or major additions. & Invented characters or plot elements excluded by constraints. \\
+\midrule
+Genre Alignment & Vocabulary, rhythm, and register fully match genre. & Mostly aligned; one off-genre phrase or image. & Clearly wrong tone. \\
+\midrule
+Visual Specificity & $\geq$3 of: subject position, lighting, palette, shadow/silhouette, symbolic object. A designer could start sketching. & Atmosphere mentioned but $\geq$2 specifics missing. & Only generic descriptors (``dark and moody''). \\
+\midrule
+Creative Specificity & Unexpected word combination; memorable on first read. Not interchangeable with other films in this genre. & Competent but interchangeable with many films. & Clich\'{e} phrase from common marketing templates. \\
+\midrule
+Format Validity & All fields present, within word limits. & One field $\leq$20\% over limit. & Field missing or $>$20\% over. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{C. Implementation Details}
+
+\textbf{Generator:} Mistral-7B-Instruct-v0.2, 4-bit NF4 quantization via bitsandbytes, run on Google Colab T4 GPU (16GB VRAM). Sampling parameters: temperature=0.6, top-$p$=0.9, repetition penalty=1.10, max new tokens=320.
+
+\textbf{Retrieval:} FAISS IndexFlatIP (cosine similarity on L2-normalized embeddings). Embedding model: Sentence-BERT all-MiniLM-L6-v2 (384 dimensions).
+
+\textbf{Judge:} GPT-4o via OpenAI API, \texttt{response\_format=json\_object}, max\_tokens=1000.
+
+\textbf{Poster captioning:} Gemini 2.5 Flash via Google AI API. 6-axis prose prompt covering composition, lighting, color palette, mood, typography, and symbolic elements.
+
+\textbf{Prompt template:}
+\begin{verbatim}
+You are a movie marketing generator specializing in 
+distinctive, genre-specific film marketing.
+
+Generate marketing assets for the movie described below.
+
+OUTPUT: ONE JSON object with EXACTLY these keys:
+- overview (<= 80 words, compelling promo synopsis)
+- tagline (<= 12 words)
+- poster_art_direction (<= 60 words)
+
+JSON FORMAT:
+{"overview": "", "tagline": "", "poster_art_direction": ""}
+
+MOVIE DETAILS:
+Core Premise: __PREMISE__
+Thematic Core: __THEME__
+IMPORTANT - Do NOT do the following: __NEGATIVES__
+
+REFERENCES from similar successful movies:
+STRICT RULE: Use these for WRITING STYLE, TONE, and 
+SENTENCE RHYTHM ONLY.
+Do NOT borrow any character names, plot events, 
+locations, or story elements.
+Every word of your output must describe ONLY the movie 
+in MOVIE DETAILS above.
+If the references do not feel relevant to this film, 
+ignore them entirely and generate from the movie 
+details alone.
+__REFS__
+
+STEP 1 - Study the references above:
+- Identify the sentence rhythm and emotional punch 
+  of each tagline
+- Identify 3 specific visual details from each poster 
+  description (lighting, color, composition)
+- Note the tone and pacing of each overview
+- If references feel stylistically mismatched, 
+  skip this step entirely
+
+STEP 2 - Generate assets using ONLY the movie details:
+- tagline: Write one unexpected, specific phrase that 
+  could ONLY describe this film.
+- overview: Open with a hook, not a plot summary. 
+  Use present tense.
+- poster_art_direction: Specify exactly where the 
+  subject is, lighting direction, dominant colors, 
+  and one symbolic object.
+
+STRICT RULES:
+- Do NOT borrow any character names, plot events, 
+  or story elements from references
+- Output ONLY the JSON object
+- End immediately after the final '}'
+
+Now output the JSON:
+\end{verbatim}
+
+\end{document}
