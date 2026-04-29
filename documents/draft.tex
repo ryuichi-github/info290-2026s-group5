@@ -45,7 +45,33 @@
 
 % ══════════════════════════════════════════════════════════════
 \begin{abstract}
-We present a system that generates professional marketing assets for films---taglines, promotional overviews, and poster art direction---by retrieving thematically similar films from a corpus of 4,312 TMDB movies and injecting their metadata and poster visual descriptions into the generation prompt. We compare three system variants: a zero-shot baseline~(V1), retrieval-augmented generation with visual grounding via pre-computed poster captions~(V2), and V2 extended with an iterative refinement loop using a separate LLM-as-Judge~(V3). Outputs are evaluated on five dimensions by GPT-4o, using a rubric designed around failure modes observed during development. Our investigation yields two central findings. First, across all three generators tested (Mistral-7B, Gemini~2.5~Flash, GPT-4o-mini) and both $n{=}3$ and $n{=}20$ sample sizes, no variant consistently benefits from retrieved context: V1 performs comparably to or better than V2 and V3, with no statistically significant pairwise differences. Second, automated evaluation of creative outputs poses unique methodological challenges: four of five rubric dimensions score at or near ceiling, leaving creative specificity as the only clearly discriminating dimension. Rubric tightening partially resolves ceiling effects but confirms that low creative specificity reflects a genuine generator limitation rather than a measurement artifact.
+We present a system that generates professional marketing 
+assets for films—taglines, promotional overviews, and poster 
+art direction—by retrieving thematically similar films from a 
+corpus of 4,312 TMDB movies and injecting their metadata and 
+poster visual descriptions into the generation prompt. We 
+compare three system variants: a zero-shot baseline (V1), 
+retrieval-augmented generation with visual grounding via 
+pre-computed poster captions (V2), and V2 extended with an 
+iterative refinement loop using a separate LLM-as-Judge (V3). 
+Outputs are evaluated on five dimensions by GPT-4o, using a 
+rubric designed around failure modes observed during 
+development. Our investigation yields two central findings. 
+First, across all three generators tested (Mistral-7B, 
+Gemini 2.5 Flash, GPT-4o-mini) and both n=3 and n=20 sample 
+sizes, no variant consistently benefits from retrieved 
+context: V1 performs comparably to or better than V2 and V3, 
+with no statistically significant pairwise differences—a 
+result corpus analysis attributes to substantial overlap 
+between the textual retrieval surface and content base LLMs 
+have likely encountered during training. Second, automated 
+evaluation of creative outputs poses unique methodological 
+challenges: four of five rubric dimensions score at or near 
+ceiling, leaving creative specificity as the only clearly 
+discriminating dimension. Rubric tightening partially 
+resolves ceiling effects but confirms that low creative 
+specificity reflects a genuine generator limitation rather 
+than a measurement artifact.
 \end{abstract}
 
 % ══════════════════════════════════════════════════════════════
@@ -58,18 +84,10 @@ We address this gap by building a system that takes a \textit{structured movie c
 % --- FIGURE 1 PLACEHOLDER ---
 \begin{figure}[t]
 \centering
-\fbox{\begin{minipage}{0.9\columnwidth}
-\centering
-\vspace{2cm}
-\textcolor{gray}{\textbf{End-to-End User Journey}\\[4pt]
-\small Insert \texttt{figure1\_user\_journey.svg}\\
-User $\to$ Input $\to$ [Retrieval $\to$] Generation [$\to$ Refinement] $\to$ Output.}
-\vspace{2cm}
-\end{minipage}}
+\includegraphics[width=\columnwidth]{figures/figure1_user_journey.png}
 \caption{End-to-end user journey. A creative professional provides a structured movie concept. The system generates marketing assets, optionally using retrieval (V2/V3) and judge feedback (V3).}
 \label{fig:journey}
 \end{figure}
-
 % ══════════════════════════════════════════════════════════════
 \section{Related Work}
 
@@ -79,13 +97,68 @@ Self-Refine \citep{madaan2023selfrefine} demonstrates that LLMs can iteratively 
 
 % ══════════════════════════════════════════════════════════════
 \section{Data Sources and Inputs}
+\label{sec:data}
 
 \subsection{TMDB Movie Corpus}
-We collected metadata for 4,816 movies from the TMDB (The Movie Database) API, including title, tagline, overview, genre IDs, and audience metrics. After removing 504 records (10.5\%) with missing taglines, the working corpus contains \textbf{4,312 movies}. The genre distribution is broad but skewed toward Drama~(1,845) and Action~(1,414), followed by Thriller~(1,366), Comedy~(1,221), and Horror~(709). Our experimental case studies were selected from the most represented genres to ensure adequate retrieval coverage. A representative record (\textit{Take Shelter}, 2011) includes the tagline \textit{``Is it real or just a dream?''} and a short overview describing apocalyptic dreams and possible mental illness; each record contains textual metadata used for retrieval embedding and a poster image used for visual caption generation.
+\label{sec:corpus}
+
+We collected metadata for 4{,}816 movies from the TMDB
+(The Movie Database) API, including title, tagline, overview,
+genre IDs, release date, original language, runtime, audience
+metrics (vote average, vote count, popularity), and budget /
+revenue figures. The discovery query applied four hard filters
+at fetch time: \texttt{vote\_count}\,$\geq$\,100,
+\texttt{language}\,=\,\texttt{en-US}, \texttt{status}\,=\,
+\texttt{Released}, and a minimum overview length of 50
+characters; results were sorted by descending popularity over a
+target ceiling of $\sim$5{,}000 titles. After removing 504
+records (10.5\%) with missing taglines, the working corpus
+contains \textbf{4{,}312 movies}.
+
+The genre distribution is broad but skewed toward Drama (1{,}845)
+and Action (1{,}414), followed by Thriller (1{,}366), Comedy
+(1{,}221), and Horror (709), with movies multi-labelled at a
+mean of 2.7 genres per title. The corpus is 82\% English-original
+(3{,}952 titles), with smaller Japanese (181), French (176),
+Spanish (93), and Korean (70) representations, and concentrates
+in the 2010s and 2020s ($\sim$60\% combined). Each record
+contains textual metadata used for retrieval embedding and a
+poster image (e.g., \textit{Take Shelter}, 2011, tagline
+\textit{``Is it real or just a dream?''}) used for visual
+caption generation. The fetch funnel selects for popular,
+English-language, post-2000 commercial releases, with
+Pearson(\texttt{popularity}, \texttt{vote\_average}) $= 0.098$
+indicating that popularity is largely decoupled from quality.
+We discuss the implications of this selection bias for RAG
+retrieval in \S\ref{sec:discussion}, with a full corpus audit
+in Appendix~D.
 
 \subsection{Visual Grounding via Poster Captions}
-Early experiments revealed that without visual references, generated poster art direction was generic and lacked compositional detail---e.g., outputs like ``dark and moody poster'' that no designer could act on. To address this, we pre-computed structured visual descriptions for all 4,312 movie posters. We evaluated three vision-language models across four configurations (Figure~\ref{fig:vlm}) before selecting Gemini~2.5~Flash, which produces structured prose across six visual axes: composition, lighting, color palette, mood, typography, and symbolic elements. Captions were pre-computed via the Gemini API prior to any experiments and stored as an additional column in the retrieval corpus, requiring no API calls at inference time.
+\label{sec:posters}
 
+Early experiments revealed that without visual references,
+generated poster art direction was generic and lacked
+compositional detail---e.g., outputs like ``dark and moody
+poster'' that no designer could act on. To address this, we
+pre-computed structured visual descriptions for all 4{,}312
+movie posters. We evaluated three vision-language models across
+four configurations (Figure~\ref{fig:vlm}) before selecting
+Gemini 2.5 Flash, which produces structured prose across six
+visual axes: composition, lighting, color palette, mood,
+typography, and symbolic elements. Captions were pre-computed
+via the Gemini API prior to any experiments and stored as an
+additional column in the retrieval corpus, requiring no API
+calls at inference time.
+
+Captions average $\sim$3{,}750 characters---an order of
+magnitude longer than the source overviews---and exhibit strong
+per-genre distinctive vocabulary (documented in Appendix~D).
+Because these AI-generated descriptions are not present in
+standard pre-training corpora, the poster-caption channel is
+the most likely component of our retrieval surface to supply
+non-redundant signal to the generator.
+
+% --- Figure 2: VLM comparison ---
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.30\columnwidth]{figures/shelter.png}
@@ -112,14 +185,7 @@ BLIP-2 (Q\&A) & Marginal & ``a man and woman in front of a stormy sky'' \\
 % --- FIGURE 2 PLACEHOLDER ---
 \begin{figure}[t]
 \centering
-\fbox{\begin{minipage}{0.9\columnwidth}
-\centering
-\vspace{2cm}
-\textcolor{gray}{\textbf{System Architecture}\\[4pt]
-\small Insert \texttt{figure2\_system\_architecture.svg}\\
-V1 / V2 / V3 comparison.}
-\vspace{2cm}
-\end{minipage}}
+\includegraphics[width=\columnwidth]{figures/figure2_system_architecture.png}
 \caption{System architecture. V1 generates from input alone. V2 adds retrieved references and poster captions. V3 extends V2 with an iterative judge-feedback loop.}
 \label{fig:architecture}
 \end{figure}
@@ -246,6 +312,7 @@ We re-judged 20 records with tightened rubric anchors. Genre alignment scores dr
 
 % ══════════════════════════════════════════════════════════════
 \section{Discussion}
+\label{sec:discussion}
 
 \textbf{Largest impact.} The structured input format (Section~4)---not retrieval or refinement---had the largest measurable effect, eliminating narrative contamination and pushing four of five rubric dimensions to ceiling across all variants. This high shared baseline makes inter-variant differences difficult to detect.
 
@@ -253,40 +320,40 @@ We re-judged 20 records with tightened rubric anchors. Genre alignment scores dr
 
 \textbf{Systematic issues.} Four of five rubric dimensions hit ceiling, concentrating all discriminative signal into creative specificity. Re-judging with tightened anchors confirmed some ceilings are rubric artifacts (genre alignment: 5.00 $\to$ 4.75--4.95) while others reflect genuine generator limitations (creative specificity: 3.15--3.45 regardless of rubric). GPT-4o's dual role as QA generator and judge creates potential evaluation circularity.
 
-\textbf{Trade-offs.} V1 is simplest (\textasciitilde5s, no API cost); V2 adds \textasciitilde2s retrieval; V3 adds 20--90s and \textasciitilde\$0.02/run. None improves over V1, making the zero-shot baseline the best practical choice.
+\textbf{Robustness and practical trade-offs.} V1's independence from retrieval means it has no failure mode tied to corpus coverage, unlike V2/V3 which could degrade on premises with no thematically similar films in TMDB; robustness to out-of-distribution inputs was not directly tested. Combined with V1's efficiency advantage (\textasciitilde5s vs.\ V3's 20--90s and \textasciitilde\$0.02/run), the zero-shot baseline is the practical choice given the absence of measurable quality benefit from V2/V3.
 
-\textbf{Robustness.} V1's independence from retrieval means it has no failure mode tied to corpus coverage, unlike V2/V3 which could degrade on premises with no thematically similar films in TMDB. However, robustness to out-of-distribution inputs was not directly tested.
-
-\textbf{Bias and societal considerations.} Our corpus is predominantly Hollywood and English-language, and generated assets reflect these conventions. Beyond the corpus, Mistral-7B and GPT-4o carry pre-training biases we did not audit---stereotypes or cultural skews in these models propagate silently through the pipeline. Our automated evaluation cannot detect such biases; human review with diverse evaluators would be needed.
+\textbf{Bias and societal considerations.} Our corpus is 82\% English-original and selection-biased toward popular, post-2000 commercial releases (\S\ref{sec:corpus}, Appendix~D); generated assets reflect these conventions. Selection effects also distort aggregate ratings: non-Anglophone films that survive the popularity filter rate higher than English ones (Japanese 7.40, Korean 7.35 vs.\ English 6.66), simultaneously underrepresenting and over-praising international cinema. Beyond the corpus, Mistral-7B and GPT-4o carry pre-training biases we did not audit---stereotypes or cultural skews in these models propagate silently through the pipeline. Our automated evaluation cannot detect such biases; human review with diverse evaluators would be needed.
 
 % ══════════════════════════════════════════════════════════════
 \section{Conclusions and Future Work}
+\label{sec:conclusion}
 
-Our key insight is twofold. \textbf{(i)~RAG does not reliably improve over zero-shot for this creative task} across three generators and two sample sizes; retrieved references appear to introduce stylistic noise rather than useful signal. \textbf{(ii)~Evaluating creative outputs without ground truth requires careful methodology}: rubric design, not just system design, determines what quality differences can be detected---four of five dimensions hit ceiling, and rubric tightening confirmed that some ceilings are measurement artifacts while others (creative specificity) reflect genuine generator limits.
+Our key insight is twofold. \textbf{(i)~RAG does not reliably improve over zero-shot for this creative task} across three generators and two sample sizes; retrieved references appear to introduce stylistic noise rather than useful signal. Corpus analysis (Appendix~D) suggests a plausible structural reason: substantial overlap between the textual retrieval surface and content pre-trained LLMs have likely encountered at scale. \textbf{(ii)~Evaluating creative outputs without ground truth requires careful methodology}: rubric design, not just system design, determines what quality differences can be detected---four of five dimensions hit ceiling, and rubric tightening confirmed that some ceilings are measurement artifacts while others (creative specificity) reflect genuine generator limits.
 
-Key limitations: small test set ($n{=}36$), GPT-4o's dual role as input generator and judge, and ceiling effects in four of five rubric dimensions. With more time and compute, our highest-priority extensions would be (1)~testing a stronger local generator to confirm the model-capacity hypothesis; (2)~human evaluation (blind A/B/C) to validate LLM-as-Judge reliability; (3)~further rubric tightening, especially on creative specificity; and (4)~prompt-level improvements (genre-aware craft guidance, pattern abstraction from retrieved references) to better exploit retrieved context.
-
+Key limitations: small test set ($n{=}36$), GPT-4o's dual role as input generator and judge, ceiling effects in four of five rubric dimensions, and a corpus selection-biased toward popular English-language releases. With more time and compute, our highest-priority extensions would be (1)~testing a stronger local generator to confirm the model-capacity hypothesis; (2)~human evaluation (blind A/B/C) to validate LLM-as-Judge reliability; (3)~further rubric tightening, especially on creative specificity; and (4)~isolating the poster-caption channel in a RAG ablation, since AI-generated visual descriptions (\S\ref{sec:posters}) are the one retrieval component plausibly outside the base model's pre-training distribution.
 % ══════════════════════════════════════════════════════════════
 % ══════════════════════════════════════════════════════════════
 % ══════════════════════════════════════════════════════════════
 \section*{Contributions}
 
-\begin{table}[H]
+All notebooks are available in our code repository: \url{https://github.com/ryuichi-github/info290-2026s-group5}.
+
+\begin{table}[h]
 \centering
 \small
 \begin{tabularx}{\columnwidth}{l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
 \toprule
  & \textbf{Sections Written} & \textbf{Code / Notebook} \\
 \midrule
-Ryuichi & Abstract, \S4 System Architecture and Variants & \textit{260417\_pipeline} (main) \\
+Ryuichi & Abstract, \S4 System Architecture and Variants & \textit{data\_pipeline} \\
 \midrule
-Priya & \S5 Experiments and Evaluation & \textit{experiment\_notebook\_v2} (main) \\
+Priya & \S5 Experiments and Evaluation & \textit{experiment\_v2\_completed\_evals} \\
 \midrule
-Shivani & \S1 Introduction, \S2 Related Work & \textit{[Shivani's notebook]} (main) \\
+Shivani & \S1 Introduction, \S2 Related Work & \textit{agentic\_loop\_movie} \\
 \midrule
-Nseke & \S6 Discussion, \S7 Conclusions & \textit{[Nseke's notebook]} (main) \\
+Nseke & \S6 Discussion, \S7 Conclusions & \textit{nseke\_evaluation (1)}\\
 \midrule
-Lena & \S3 Data Sources and Inputs & \textit{[Lena's notebook]} (main) \\
+Lena & \S3 Data Sources and Inputs & \textit{corpus\_data\_analysis} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -445,5 +512,119 @@ STRICT RULES:
 
 Now output the JSON:
 \end{verbatim}
+
+\subsection*{D. TMDB Corpus Audit}
+\label{app:corpus_audit}
+
+This appendix expands on the corpus characterization summarized
+in \S\ref{sec:corpus}--\ref{sec:posters}.
+
+\subsubsection*{D.1 Detailed Distributions}
+
+\textbf{Genre co-occurrence.} Movies are multi-labelled at a
+mean of 2.7 genres per title. Pairwise co-occurrence is
+concentrated in canonical bundles: Action$+$Thriller (671),
+Action$+$Adventure (574), Drama$+$Thriller (560), and
+Drama$+$Romance (504), which the retriever can exploit for
+stylistic neighbours.
+
+\textbf{Temporal distribution.} Releases concentrate in the
+2010s (1{,}470 films) and 2020s (1{,}137); pre-2000 cinema is
+comparatively sparse (1{,}148 films across the eight prior
+decades). Decadal mean ratings drift downward from 7.64 (1950s)
+to 6.62 (2010s), reflecting both rating-inflation for canonized
+older films and a markedly larger release volume in the
+streaming era; older inputs in the corpus tend to be
+\textit{best-of-decade} survivors rather than a representative
+cross-section. Tagline coverage declines from 96\% in the
+1960s to 83\% in the 2020s.
+
+\textbf{Marketing-surface text statistics.} Tagline texts are
+short and stylized: mean 7.4 words and 40 characters, with
+4.6\% ending in a question mark and 6.6\% in an exclamation.
+Overviews average 268 characters. Financial fields are sparser
+by construction: 80.7\% of records report revenue and 76.6\%
+report budget, with completeness skewing strongly toward
+higher-grossing releases (see D.2).
+
+\textbf{Poster-caption per-genre distinctive vocabulary.} A
+per-genre relative-frequency analysis against the corpus
+baseline yields highly distinctive vocabularies. Horror posters
+foreground \textit{zombie, chucky, insidious, graveyard,
+horrifying}; Action skews to \textit{martial, ninja, saiyan,
+lightsaber, batman's, indiana}; Thriller to \textit{terminator,
+rambo's, wick, lethal, statham's, neeson's}; Crime to
+\textit{holmes, heist, handcuffs, ace, illicit}; Sci-Fi to
+\textit{godzilla, na'vi, terminator, alien's, extraterrestrial};
+Comedy to \textit{comedic, parody, mischief, bewildered,
+spongebob}; and Drama to \textit{bittersweet, mentorship,
+perseverance, wistful, political}.
+
+\subsubsection*{D.2 Selection Biases in the Fetch Funnel}
+
+The TMDB corpus is not a random sample of cinema; it is the
+joint output of a four-stage selection funnel that systematically
+over-represents popular, English-language, post-2000 commercial
+releases. Each stage contributes a distinct bias with
+implications for downstream retrieval.
+
+\textbf{Popularity floor.} The \texttt{vote\_count}\,$\geq$\,100
+filter excludes the long tail of niche, festival-circuit, and
+cult films---precisely the regime in which retrieval would add
+the most marginal information beyond a pre-trained generator's
+parametric memory. Within the surviving corpus, audience reach
+is itself structured: splitting at the median \texttt{vote\_count}
+yields a ``well-known'' half with 96.2\% revenue coverage versus
+65.2\% for the ``long-tail'' half, indicating that the financial
+fields are themselves a biased subsample.
+
+\textbf{Language and locale.} The English-localised discover
+endpoint produces a corpus that is 82\% English-original.
+Non-English titles that survive the popularity filter exhibit
+higher mean ratings than their English counterparts
+(Japanese 7.40, Korean 7.35, Chinese 7.10 vs.\ English
+6.66)---a selection effect: only the most successful
+international films cross the popularity threshold visible to
+an \texttt{en-US} query, so the corpus simultaneously
+underrepresents and over-praises non-Anglophone cinema.
+
+\textbf{Temporal skew.} Popularity-sorted discovery oversamples
+recent releases (see D.1 above). Older inputs in the corpus
+tend to be best-of-decade survivors rather than a representative
+cross-section.
+
+\textbf{Quality--popularity decoupling.} The Pearson correlation
+between TMDB popularity and \texttt{vote\_average} is
+$0.098$---effectively zero. Retrieval ranked by
+popularity-correlated similarity therefore does not implicitly
+select for higher-quality references; quality and discoverability
+operate on largely orthogonal axes.
+
+\subsubsection*{D.3 Implications for RAG}
+
+Taken together, these filters select for content that large
+pre-trained language models have likely encountered at scale
+during training; TMDB-derived overviews and taglines are common
+in public crawls. The retrieval surface for the textual channel
+therefore overlaps substantially with the base model's
+parametric memory, contributing a structural ceiling on the
+marginal information RAG can supply. This is consistent with
+the experimental finding on the held-out test set
+(\S\ref{sec:test}) that retrieval does not reliably outperform
+zero-shot generation in our setup. The poster-caption channel
+(\S\ref{sec:posters}) is a partial exception, since its content
+is generated rather than scraped---motivating the
+poster-caption-only ablation proposed as future work
+(\S\ref{sec:conclusion}).
+
+\subsubsection*{D.4 Out-of-Scope Dimensions}
+
+TMDB does not expose voter demographics (age, gender, ethnicity,
+country of origin), marketing spend, trailer or social-media
+engagement, third-party critical aggregates (e.g., Rotten
+Tomatoes, Metacritic), or box-office geography. Claims about
+audience segmentation, marketing effectiveness, or critical
+reception are therefore beyond what this corpus can support and
+would require complementary data sources to investigate.
 
 \end{document}
